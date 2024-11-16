@@ -57,11 +57,11 @@ const HomePage: React.FC = () => {
 
       if(formData.questionType === 'coding'){
          response = await fetch(
-          `http://localhost:4000/test-series-coding/custom-questions?topic=${formData.topic}&type=${formData.questionType}&difficulty=${formData.difficulty}&numQuestions=${formData.numQuestions}`
+          `https://server.datasenseai.com/test-series-coding/custom-questions?topic=${formData.topic}&type=${formData.questionType}&difficulty=${formData.difficulty}&numQuestions=${formData.numQuestions}`
         );
       }else{
         response = await fetch(
-          `http://localhost:4000/test-series-mcq/custom-questions?topic=${formData.topic}&type=${formData.questionType}&difficulty=${formData.difficulty}&numQuestions=${formData.numQuestions}`
+          `https://server.datasenseai.com/test-series-mcq/custom-questions?topic=${formData.topic}&type=${formData.questionType}&difficulty=${formData.difficulty}&numQuestions=${formData.numQuestions}`
         );
       }
 
@@ -72,7 +72,7 @@ const HomePage: React.FC = () => {
       const data = await response.json();
       setQuestions(data);
       setShowQuiz(true); // Show QuizApp when questions are received
-       console.log(data);
+      //  console.log(data);
 
       // Store questions in sessionStorage to access them in the new tab
       sessionStorage.setItem('quizQuestions', JSON.stringify(data));

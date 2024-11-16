@@ -48,7 +48,7 @@ export default function CustomTestList() {
     const fetchTests = async () => {
       if (user) {
         try {
-          const response = await fetch(`http://localhost:4000/custom-test/submissions/${user.id}`);
+          const response = await fetch(`https://server.datasenseai.com/custom-test/submissions/${user.id}`);
           if (!response.ok) {
             throw new Error("Failed to fetch tests");
           }

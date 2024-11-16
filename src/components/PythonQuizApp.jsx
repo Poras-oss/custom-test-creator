@@ -10,7 +10,16 @@ import ReactPlayer from 'react-player';
 import StatisticsPage from './StatisticsPage';
 
 export default function PythonQuizApp({ questions, timePerQuestion }) {
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded, isSignedIn } = useUser();
+
+  // if (!isLoaded) {
+  //   return (
+  //     <div className="w-full h-screen flex flex-col items-center justify-center">
+  //       <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
+  //       <h5 className="mt-4 text-2xl font-thin text-gray-700">Loading authentication...</h5>
+  //     </div>
+  //   );
+  // }
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userCode, setUserCode] = useState('');
@@ -231,7 +240,7 @@ export default function PythonQuizApp({ questions, timePerQuestion }) {
     });
 
     try {
-      const response = await fetch('http://localhost:4000/custom-test/submit-quiz', {
+      const response = await fetch('https://server.datasenseai.com/custom-test/submit-quiz', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -387,8 +396,8 @@ export default function PythonQuizApp({ questions, timePerQuestion }) {
                 fontSize: 14,
               }}
             />
-            <div className="flex flex-col">
-              <div className="flex mt-2">
+            <div className="flex flex-col ">
+              <div className="flex mt-2 space-x-4 ">
                 <button
                   className={`flex-1 ${isRunning ? 'bg-teal-500' : 'bg-teal-600'} text-white px-4 py-2 rounded hover:bg-teal-700 focus:outline-none flex items-center justify-center`}
                   onClick={handleRunCode}
@@ -402,8 +411,17 @@ export default function PythonQuizApp({ questions, timePerQuestion }) {
                       </svg>
                       Running...
                     </>
-                  ) : currentQuestionIndex === questions.length - 1 ? 'Submit Quiz' : 'Run Code'}
+                  ) : 'Run code'}
                 </button>
+               { currentQuestionIndex === questions.length - 1  &&  (<button
+        className={`flex-1 ${
+          isRunning ? 'bg-teal-500' : 'bg-teal-600'
+        } text-white px-4 py-2 rounded hover:bg-teal-700 focus:outline-none flex items-center justify-center`}
+        onClick={handleSubmitQuiz}
+        disabled={isRunning}
+      > 
+        Submit Quiz
+      </button>)}
               </div>
               <div className={`mt-4 ${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded p-4 flex-grow overflow-y-auto`}>
                 {feedback && (

@@ -91,7 +91,7 @@ export default function MCQQuiz({ questions, timePerQuestion, subject }) {
     setScore(calculatedScore);
 
     try {
-      const response = await fetch('http://localhost:4000/custom-test/submit-quiz', {
+      const response = await fetch('https://server.datasenseai.com/custom-test/submit-quiz', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
