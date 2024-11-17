@@ -12,20 +12,14 @@ import StatisticsPage from './StatisticsPage';
 export default function PythonQuizApp({ questions, timePerQuestion }) {
   const { user, isLoaded, isSignedIn } = useUser();
 
-  // if (!isLoaded) {
-  //   return (
-  //     <div className="w-full h-screen flex flex-col items-center justify-center">
-  //       <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
-  //       <h5 className="mt-4 text-2xl font-thin text-gray-700">Loading authentication...</h5>
-  //     </div>
-  //   );
-  // }
-
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userCode, setUserCode] = useState('');
+  const [userCodes, setUserCodes] = useState(() => 
+    questions.map(q => q.boilerplate_code || '')
+  );
   const [feedback, setFeedback] = useState('');
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isRunning, setIsRunning] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [output, setOutput] = useState(null);
   const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
@@ -58,32 +52,24 @@ export default function PythonQuizApp({ questions, timePerQuestion }) {
     if (isTimerRunning && !isTimeUp) {
       timer = setInterval(() => {
         setTimeTrackers(prevTrackers => {
-          const newTrackers = prevTrackers.map((tracker, index) => {
-            if (index === currentQuestionIndex) {
-              const newRemaining = tracker.remaining - 1;
-              if (newRemaining <= 0) {
-                clearInterval(timer);
-                setIsTimeUp(true);
-                setIsTimerRunning(false);
-                return {
-                  ...tracker,
-                  remaining: 0,
-                  elapsed: timePerQuestion * 60
-                };
-              }
-              return {
-                ...tracker,
-                elapsed: tracker.elapsed + 1,
-                remaining: newRemaining
-              };
-            }
-            return tracker;
-          });
-          
+          const newTrackers = [...prevTrackers];
           const currentTracker = newTrackers[currentQuestionIndex];
-          setTimeRemaining(currentTracker.remaining);
-          
+          if (currentTracker.remaining > 0) {
+            currentTracker.remaining -= 1;
+            currentTracker.elapsed += 1;
+          } else {
+            clearInterval(timer);
+            setIsTimeUp(true);
+            setIsTimerRunning(false);
+          }
           return newTrackers;
+        });
+
+        setTimeRemaining(prev => {
+          if (prev > 0) return prev - 1;
+          setIsTimeUp(true);
+          setIsTimerRunning(false);
+          return 0;
         });
       }, 1000);
     }
@@ -91,17 +77,12 @@ export default function PythonQuizApp({ questions, timePerQuestion }) {
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [isTimerRunning, currentQuestionIndex, isTimeUp, timePerQuestion]);
+  }, [isTimerRunning, currentQuestionIndex, isTimeUp]);
 
   useEffect(() => {
     setTimeRemaining(timeTrackers[currentQuestionIndex].remaining);
   }, [timeTrackers, currentQuestionIndex]);
 
-  useEffect(() => {
-    setTimeRemaining(timePerQuestion * 60);
-    setIsTimerRunning(true);
-    setUserCode(questions[currentQuestionIndex].boilerplate_code || '');
-  }, [currentQuestionIndex, timePerQuestion, questions]);
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
@@ -126,7 +107,7 @@ export default function PythonQuizApp({ questions, timePerQuestion }) {
 
   const checkAllTestCases = async (userCode) => {
     const results = [];
-    for (const testCase of currentQuestion.test_cases) {
+    for (const testCase of questions[currentQuestionIndex].test_cases) {
       try {
         const response = await axios.post('https://emkc.org/api/v2/piston/execute', {
           language: 'python',
@@ -163,13 +144,13 @@ export default function PythonQuizApp({ questions, timePerQuestion }) {
 
     setIsRunning(true);
     try {
-      const testResults = await checkAllTestCases(userCode);
+      const testResults = await checkAllTestCases(userCodes[currentQuestionIndex]);
       const allTestsPassed = testResults.every(result => result.passed);
       
-      updateQuestionResult(allTestsPassed, userCode);
+      updateQuestionResult(allTestsPassed, userCodes[currentQuestionIndex]);
       
       setFeedback({
-        text: allTestsPassed ? 'All test cases passed!' : 'Some test cases failed. Please try again.',
+        text: allTestsPassed ? '' : '',
         isCorrect: allTestsPassed,
         testResults: testResults
       });
@@ -184,6 +165,35 @@ export default function PythonQuizApp({ questions, timePerQuestion }) {
       setIsRunning(false);
     }
   };
+  const handleTestCode = async () => {
+    if (isTimeUp) {
+      setFeedback({ text: 'Time is up! Cannot submit answer.', isCorrect: false });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const testResults = await checkAllTestCases(userCodes[currentQuestionIndex]);
+      const allTestsPassed = testResults.every(result => result.passed);
+      
+      updateQuestionResult(allTestsPassed, userCodes[currentQuestionIndex]);
+      
+      setFeedback({
+        text: allTestsPassed ? 'All test cases passed!' : 'Some test cases failed. Please try again.',
+        isCorrect: allTestsPassed,
+        testResults: testResults
+      });
+      
+      setOutput(testResults.map(result => 
+        `Input: ${result.input}\nExpected: ${result.expectedOutput}\nActual: ${result.actualOutput}\nPassed: ${result.passed}`
+      ).join('\n\n'));
+    } catch (error) {
+      setFeedback({ text: 'Error running code', isCorrect: false });
+      setOutput('Error executing code');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   
   const handleQuestionSelect = (index) => {
     if (!questionResults[currentQuestionIndex].isCorrect && 
@@ -191,20 +201,12 @@ export default function PythonQuizApp({ questions, timePerQuestion }) {
       updateQuestionResult(null);
     }
 
-    setTimeTrackers(prevTrackers => 
-      prevTrackers.map((tracker, i) => ({
-        ...tracker,
-        isPaused: i !== index
-      }))
-    );
-
     setCurrentQuestionIndex(index);
     setTimeRemaining(timeTrackers[index].remaining);
     setFeedback('');
     setOutput(null);
     setIsTimeUp(timeTrackers[index].remaining <= 0);
     setIsTimerRunning(timeTrackers[index].remaining > 0);
-    setUserCode(questions[index].boilerplate_code || '');
   };
 
   const updateQuestionResult = (isCorrect = null, userAnswer = null) => {
@@ -235,7 +237,7 @@ export default function PythonQuizApp({ questions, timePerQuestion }) {
     
     questions.forEach((question, index) => {
       if (!questionResults[index].isCorrect && !questionResults[index].timeUp) {
-        updateQuestionResult(null);
+        updateQuestionResult(false);
       }
     });
 
@@ -296,6 +298,15 @@ export default function PythonQuizApp({ questions, timePerQuestion }) {
       <nav className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex justify-between items-center`}>
         <h1 className="mb-4 text-xl font-bold">Python Quiz</h1>
         <div className="flex items-center space-x-4">
+        { currentQuestionIndex === questions.length - 1  &&  (<button
+        className={`flex-1 ${
+          isRunning ? 'bg-teal-500' : 'bg-teal-600'
+        } text-white px-4 py-2 rounded hover:bg-teal-700 focus:outline-none flex items-center justify-center`}
+        onClick={handleSubmitQuiz}
+        disabled={isRunning}
+      > 
+        Submit Quiz
+      </button>)}
           <div className="text-lg font-semibold">
             Time remaining: {formatTime(timeRemaining)}
           </div>
@@ -388,8 +399,14 @@ export default function PythonQuizApp({ questions, timePerQuestion }) {
               height="100%"
               language="python"
               theme={isDarkMode ? "vs-dark" : "light"}
-              value={userCode}
-              onChange={setUserCode}
+              value={userCodes[currentQuestionIndex]}
+              onChange={(newValue) => {
+                setUserCodes(prevCodes => {
+                  const newCodes = [...prevCodes];
+                  newCodes[currentQuestionIndex] = newValue;
+                  return newCodes;
+                });
+              }}
               options={{
                 minimap: { enabled: false },
                 scrollBeyondLastLine: false,
@@ -413,15 +430,21 @@ export default function PythonQuizApp({ questions, timePerQuestion }) {
                     </>
                   ) : 'Run code'}
                 </button>
-               { currentQuestionIndex === questions.length - 1  &&  (<button
-        className={`flex-1 ${
-          isRunning ? 'bg-teal-500' : 'bg-teal-600'
-        } text-white px-4 py-2 rounded hover:bg-teal-700 focus:outline-none flex items-center justify-center`}
-        onClick={handleSubmitQuiz}
-        disabled={isRunning}
-      > 
-        Submit Quiz
-      </button>)}
+             <button
+             className={`flex-1 ${isRunning ? 'bg-teal-500' : 'bg-teal-600'} text-white px-4 py-2 rounded hover:bg-teal-700 focus:outline-none flex items-center justify-center`}
+             onClick={handleTestCode}
+             disabled={isSubmitting}
+             >
+               {isSubmitting ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Submiting...
+                    </>
+                  ) : 'Submit code'}
+             </button>
               </div>
               <div className={`mt-4 ${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded p-4 flex-grow overflow-y-auto`}>
                 {feedback && (
@@ -429,41 +452,41 @@ export default function PythonQuizApp({ questions, timePerQuestion }) {
                     {feedback.text}
                   </div>
                 )}
- {output !== null && (
-  <div className="mt-4 flex flex-col space-y-4">
-    <h3 className="text-lg font-semibold">Test Results</h3>
-    {feedback.testResults.map((result, index) => (
-      <div key={index} className={`p-4 rounded-lg ${
-        result.passed 
-          ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' 
-          : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100'
-      }`}>
-        <h4 className="font-medium mb-2">Test Case {index + 1}</h4>
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div>
-            <span className="font-semibold">Input:</span>
-            <pre className="mt-1 p-2 bg-gray-100 dark:bg-gray-700 rounded overflow-x-auto">{result.input}</pre>
-          </div>
-          <div>
-            <span className="font-semibold">Expected Output:</span>
-            <pre className="mt-1 p-2 bg-gray-100 dark:bg-gray-700 rounded overflow-x-auto">{result.expectedOutput}</pre>
-          </div>
-          <div className="col-span-2">
-            <span className="font-semibold">Actual Output:</span>
-            <pre className="mt-1 p-2 bg-gray-100 dark:bg-gray-700 rounded overflow-x-auto">{result.actualOutput}</pre>
-          </div>
-        </div>
-        <div className={`mt-2 font-medium ${
-          result.passed 
-            ? 'text-green-600 dark:text-green-400' 
-            : 'text-red-600 dark:text-red-400'
-        }`}>
-          {result.passed ? 'Passed' : 'Failed'}
-        </div>
-      </div>
-    ))}
-  </div>
-)}
+                {output !== null && (
+                  <div className="mt-4 flex flex-col space-y-4">
+                    <h3 className="text-lg font-semibold">Test Results</h3>
+                    {feedback.testResults.map((result, index) => (
+                      <div key={index} className={`p-4 rounded-lg ${
+                        result.passed 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' 
+                          : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100'
+                      }`}>
+                        <h4 className="font-medium mb-2">Test Case {index + 1}</h4>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span className="font-semibold">Input:</span>
+                            <pre className="mt-1 p-2 bg-gray-100 dark:bg-gray-700 rounded overflow-x-auto">{result.input}</pre>
+                          </div>
+                          <div>
+                            <span className="font-semibold">Expected Output:</span>
+                            <pre className="mt-1 p-2 bg-gray-100 dark:bg-gray-700 rounded overflow-x-auto">{result.expectedOutput}</pre>
+                          </div>
+                          <div className="col-span-2">
+                            <span className="font-semibold">Actual Output:</span>
+                            <pre className="mt-1 p-2 bg-gray-100 dark:bg-gray-700 rounded overflow-x-auto">{result.actualOutput}</pre>
+                          </div>
+                        </div>
+                        <div className={`mt-2 font-medium ${
+                          result.passed 
+                            ? 'text-green-600 dark:text-green-400' 
+                            : 'text-red-600 dark:text-red-400'
+                        }`}>
+                          {result.passed ? 'Passed' : 'Failed'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </Split>

@@ -20,6 +20,7 @@ export default function QuizApp({ questions, timePerQuestion }) {
   const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
   const [quizSubmitted, setQuizSubmitted] = useState(false); 
+  const [userQueries, setUserQueries] = useState(questions.map(() => ''))
 
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(timePerQuestion * 60);
@@ -139,7 +140,7 @@ export default function QuizApp({ questions, timePerQuestion }) {
 
     setIsRunning(true);
     try {
-      const response = await axios.get(`https://server.datasenseai.com/execute-sql/query?q=${encodeURIComponent(userQuery)}`);
+      const response = await axios.get(`https://server.datasenseai.com/execute-sql/query?q=${encodeURIComponent(userQueries[currentQuestionIndex])}`);
       const userAnswer = response.data;
       
       const expectedOutput = questions[currentQuestionIndex].expected_output;
@@ -147,11 +148,11 @@ export default function QuizApp({ questions, timePerQuestion }) {
       
       updateQuestionResult(isCorrect, userAnswer);
       
-      setFeedback({
-        text: isCorrect ? 'Correct!' : 'Incorrect. Please try again.',
-        isCorrect: isCorrect,
-        userAnswer: userAnswer
-      });
+      // setFeedback({
+      //   text: isCorrect ? 'Correct!' : 'Incorrect. Please try again.',
+      //   isCorrect: isCorrect,
+      //   userAnswer: userAnswer
+      // });
       
       setOutput(userAnswer);
     } catch (error) {
@@ -171,7 +172,7 @@ export default function QuizApp({ questions, timePerQuestion }) {
 
     setIsTesting(true);
     try {
-      const response = await axios.get(`https://server.datasenseai.com/execute-sql/query?q=${encodeURIComponent(userQuery)}`);
+      const response = await axios.get(`https://server.datasenseai.com/execute-sql/query?q=${encodeURIComponent(userQueries[currentQuestionIndex])}`);
       const userAnswer = response.data;
       
       const expectedOutput = questions[currentQuestionIndex].expected_output;
@@ -351,6 +352,13 @@ export default function QuizApp({ questions, timePerQuestion }) {
       <nav className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex justify-between items-center`}>
         <h1 className="mb-4 text-xl font-bold">SQL Quiz</h1>
         <div className="flex items-center space-x-4">
+          {(currentQuestionIndex === questions.length - 1 &&  <button 
+                  onClick={handleNextQuestion}
+                  className="px-3 py-1 rounded text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200"
+                >
+                  {currentQuestionIndex === questions.length - 1 ? 'Submit Quiz' : 'Next Question'}
+                </button>)}
+       
           <div className="text-lg font-semibold">
             Time remaining: {formatTime(timeRemaining)}
           </div>
@@ -447,7 +455,7 @@ export default function QuizApp({ questions, timePerQuestion }) {
                           </tr>
                         </thead>
                         <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white divide-y divide-gray-200'}>
-                          {table.rows.map((row, rowIndex) => (
+                          {table.rows.slice(0,10).map((row, rowIndex) => (
                             <tr key={rowIndex}>
                               {row.map((cell, cellIndex) => (
                                 <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">
@@ -458,10 +466,32 @@ export default function QuizApp({ questions, timePerQuestion }) {
                           ))}
                         </tbody>
                       </table>
+                       <h3 className="text-lg font-bold mb-2">Expected Answer</h3>
+                  <table className="min-w-full divide-y divide-gray-200">
+                  <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+                          <tr>
+                            {table.columns.map((column, columnIndex) => (
+                              <th key={columnIndex} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                {column}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white divide-y divide-gray-200'}>
+                      {currentQuestion.expected_output.slice(0,10).map((row, rowIndex) => (
+                        <tr key={rowIndex} >
+                          {row.map((value, cellIndex) => (
+                            <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">{value}</td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                     </div>
                   </div>
                 ))}
               </div>
+              
             )}
           </div>
         </div>
@@ -483,8 +513,12 @@ export default function QuizApp({ questions, timePerQuestion }) {
               height="100%"
               language="sql"
               theme={isDarkMode ? "vs-dark" : "light"}
-              value={userQuery}
-              onChange={setUserQuery}
+             value={userQueries[currentQuestionIndex]}
+  onChange={(value) => {
+    const newQueries = [...userQueries]
+    newQueries[currentQuestionIndex] = value
+    setUserQueries(newQueries)
+  }}
               options={{
                 minimap: { enabled: false },
                 scrollBeyondLastLine: false,
@@ -521,14 +555,9 @@ export default function QuizApp({ questions, timePerQuestion }) {
                       </svg>
                       Testing...
                     </>
-                  ) : 'Test Code'}
+                  ) : 'Submit Code'}
                 </button>
-                <button 
-                  onClick={handleNextQuestion}
-                  className="px-3 py-1 rounded text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200"
-                >
-                  {currentQuestionIndex === questions.length - 1 ? 'Submit Quiz' : 'Next Question'}
-                </button>
+             
               </div>
               <div className={`mt-4 ${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded p-4 flex-grow overflow-y-auto`}>
                 {feedback && (
