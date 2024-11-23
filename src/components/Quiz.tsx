@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import React, { useState, useEffect } from 'react';
 import { useUser } from '@clerk/clerk-react';
@@ -7,18 +7,46 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Loader2 } from 'lucide-react';
 import StatisticsPage from './StatisticsPage';
 
-export default function MCQQuiz({ questions, timePerQuestion, subject }) {
+interface Option {
+  [key: string]: string;
+}
+
+interface Question {
+  question_text: string;
+  options: Option;
+  correct_answer: string;
+  difficulty?: string;
+  subtopic?: string;
+}
+
+interface QuestionResult {
+  difficulty: string | null;
+  timeTaken: number;
+  subtopic: string | null;
+  isCorrect: boolean;
+  question: Question;
+  userAnswer: string | null;
+  timeUp: boolean;
+}
+
+interface MCQQuizProps {
+  questions: Question[];
+  timePerQuestion: number;
+  subject: string;
+}
+
+export default function MCQQuiz({ questions, timePerQuestion, subject }: MCQQuizProps) {
   const { user } = useUser();
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [userAnswers, setUserAnswers] = useState([]);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [userAnswers, setUserAnswers] = useState<string[]>([]);
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(timePerQuestion);
   const [quizCompleted, setQuizCompleted] = useState(false);
-  const [startTime, setStartTime] = useState(null);
-  const [questionResults, setQuestionResults] = useState([]);
-  const [shuffledOptions, setShuffledOptions] = useState([]);
+  const [startTime, setStartTime] = useState<Date | null>(null);
+  const [questionResults, setQuestionResults] = useState<QuestionResult[]>([]);
+  const [shuffledOptions, setShuffledOptions] = useState<[string, string][]>([]);
 
   useEffect(() => {
     if (questions.length > 0 && !quizCompleted) {
@@ -46,13 +74,12 @@ export default function MCQQuiz({ questions, timePerQuestion, subject }) {
   };
 
   useEffect(() => {
-    // Shuffle options only when the current question index changes
     const options = Object.entries(questions[currentQuestionIndex].options);
     const shuffled = options.sort(() => Math.random() - 0.5);
     setShuffledOptions(shuffled);
   }, [currentQuestionIndex, questions]);
 
-  const selectOption = (optionKey) => {
+  const selectOption = (optionKey: string) => {
     setSelectedOption(optionKey);
   };
 
@@ -67,7 +94,7 @@ export default function MCQQuiz({ questions, timePerQuestion, subject }) {
 
   const updateQuestionResult = () => {
     const currentQuestion = questions[currentQuestionIndex];
-    const isCorrect = selectedOption && currentQuestion.options[selectedOption] === currentQuestion.correct_answer;
+    const isCorrect = selectedOption !== null && currentQuestion.options[selectedOption] === currentQuestion.correct_answer;
     
     setQuestionResults(prevResults => [
       ...prevResults,
@@ -84,7 +111,7 @@ export default function MCQQuiz({ questions, timePerQuestion, subject }) {
   };
 
   const submitQuiz = async () => {
-    updateQuestionResult(); // Update result for the last question
+    updateQuestionResult();
     setQuizCompleted(true);
 
     const calculatedScore = questionResults.reduce((total, result) => result.isCorrect ? total + 1 : total, 0);
@@ -114,7 +141,7 @@ export default function MCQQuiz({ questions, timePerQuestion, subject }) {
         throw new Error('Failed to submit quiz results');
       }
       console.log(response);
-            console.log('Quiz submitted successfully!');
+      console.log('Quiz submitted successfully!');
     } catch (error) {
       console.log('Error submitting quiz:', error);
       toast.error('Failed to submit quiz. Please try again.');
@@ -133,8 +160,7 @@ export default function MCQQuiz({ questions, timePerQuestion, subject }) {
   if (quizCompleted) {
     return (
       <StatisticsPage
-        score={score}
-        totalQuestions={questions.length}
+        testId={user?.id || 'anonymous'}
         totalTime={questionResults.reduce((total, result) => total + result.timeTaken, 0)}
         results={questionResults}
       />
@@ -152,21 +178,20 @@ export default function MCQQuiz({ questions, timePerQuestion, subject }) {
           <h2 className="text-xl font-semibold text-white">{questions[currentQuestionIndex].question_text}</h2>
         </div>
         <div className="space-y-4 mb-8">
-      {shuffledOptions.map(([key, value]) => (
-        <div
-          key={key}
-          className={`p-3 rounded cursor-pointer transition-colors duration-300
-            ${selectedOption === key
-              ? 'bg-blue-500 text-white'
-              : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-            }`}
-          onClick={() => selectOption(key)}
-        >
-          {value}
+          {shuffledOptions.map(([key, value]) => (
+            <div
+              key={key}
+              className={`p-3 rounded cursor-pointer transition-colors duration-300
+                ${selectedOption === key
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
+              onClick={() => selectOption(key)}
+            >
+              {value}
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-
         <div className="flex justify-between items-center">
           <span className="text-sm text-gray-500">
             Question {currentQuestionIndex + 1} of {questions.length}

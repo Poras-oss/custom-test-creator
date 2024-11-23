@@ -6,7 +6,6 @@ import { Slider } from './ui/slider';
 import { Switch } from './ui/switch';
 import { Label } from './ui/label';
 import { Loader2 } from 'lucide-react';
-import QuizApp from './QuizApp';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -41,10 +40,11 @@ const HomePage: React.FC = () => {
   });
 
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showQuiz, setShowQuiz] = useState(false);
   const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { ScrollArea } from "./ui/scroll-area";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from 'lucide-react';
 import StatisticsPage from "./StatisticsPage";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle } from 'lucide-react';
+import { Button } from "./ui/button";
 
 interface Question {
   difficulty: string;
@@ -27,14 +28,30 @@ interface Question {
 }
 
 interface Submission {
-  submittedAt: string; // Changed to match plain string
+  submittedAt: string;
   subject: string;
   questions: Question[];
-  _id: string; // Changed to match plain string
+  _id: string;
 }
 
 interface CustomTest {
   submissions: Submission[];
+}
+
+// Add this interface to match the expected ResultType
+interface ResultType {
+  difficulty: string | null;
+  timeTaken: number;
+  subtopic: string | null;
+  isCorrect: boolean;
+  question: {
+    question_text: string;
+    options: { [key: string]: string };
+    correct_answer: string;
+    difficulty?: string;
+  };
+  userAnswer: string | null;
+  timeUp: boolean;
 }
 
 export default function CustomTestList() {
@@ -54,7 +71,7 @@ export default function CustomTestList() {
           }
           const data = await response.json();
           console.log(data);
-          setCustomTest(data.data); // Updated to access the `data` field
+          setCustomTest(data.data);
         } catch (error) {
           console.error("Error fetching tests:", error);
           setError("Failed to load tests. Please try again later.");
@@ -69,6 +86,10 @@ export default function CustomTestList() {
 
   const handleSubmissionClick = (submission: Submission) => {
     setSelectedSubmission(submission);
+  };
+
+  const handleBackClick = () => {
+    setSelectedSubmission(null);
   };
 
   if (loading) {
@@ -93,17 +114,40 @@ export default function CustomTestList() {
   }
 
   if (selectedSubmission) {
+    const formattedResults: ResultType[] = selectedSubmission.questions.map(q => ({
+      difficulty: q.difficulty,
+      timeTaken: q.timeTaken,
+      subtopic: q.subtopic,
+      isCorrect: q.isCorrect,
+      question: {
+        question_text: q.question.question_text,
+        options: q.question.options.reduce((acc, option, index) => {
+          acc[String.fromCharCode(65 + index)] = option;
+          return acc;
+        }, {} as { [key: string]: string }),
+        correct_answer: q.question.correct_answer,
+        difficulty: q.question.difficulty,
+      },
+      userAnswer: q.userAnswer,
+      timeUp: q.timeUp,
+    }));
+
+    const totalTime = selectedSubmission.questions.reduce((total, q) => total + (q.timeTaken || 0), 0);
+
     return (
-      <StatisticsPage
-        testId={selectedSubmission._id}
-        results={selectedSubmission.questions}
-        totalTime={selectedSubmission.questions.reduce((total, q) => total + (q.timeTaken || 0), 0)}
-      />
+      <div className="container mx-auto w-full p-6">
+        <Button onClick={handleBackClick} className="mb-4">Back to List</Button>
+        <StatisticsPage
+          testId={selectedSubmission._id}
+          results={formattedResults}
+          totalTime={totalTime}
+        />
+      </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="container mx-auto w-full p-6 ">
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl font-bold">Your Custom Tests</CardTitle>
@@ -156,3 +200,4 @@ export default function CustomTestList() {
     </div>
   );
 }
+

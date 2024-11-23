@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useParams  } from 'react-router-dom';
 import Layout from './components/Layout';
 import HomePage from './components/HomePage';
 import StatisticsPage from './components/StatisticsPage';
@@ -10,8 +10,49 @@ import QuizApp from './components/QuizApp';
 import PythonQuizApp from './components/PythonQuizApp'
 import Quiz from './components/Quiz'
 
+interface Option {
+  [key: string]: string;
+}
+
+interface McqQuestion {
+  question_text: string;
+  options: Option;
+  correct_answer: string;
+  difficulty?: string;
+  subtopic?: string;
+}
+
+interface TableData {
+  table_name: string;
+  columns: string[];
+  rows: any[][];
+}
+
+interface SqlQuestion {
+  question_text: string;
+  expected_output: any[][];
+  difficulty?: string;
+  subtopic?: string;
+  video?: string;
+  table_data?: TableData[];
+}
+interface TestCase {
+  input: string;
+  expected_output: string;
+}
+
+interface PythonQuestion {
+  question_text: string;
+  test_cases: TestCase[];
+  boilerplate_code?: string;
+  difficulty?: string;
+  subtopic?: string;
+  video?: string;
+}
+
+
 const QuizWrapper: React.FC = () => {
-  const [questions, setQuestions] = React.useState<Question[]>([]);
+  const [questions, setQuestions] = React.useState<SqlQuestion[]>([]);
   const [timer, setTimer] = React.useState<number>(0);
 
   React.useEffect(() => {
@@ -42,7 +83,7 @@ const QuizWrapper: React.FC = () => {
 };
 
 const PythonQuizWrapper: React.FC = () => {
-  const [questions, setQuestions] = React.useState<Question[]>([]);
+  const [questions, setQuestions] = React.useState<PythonQuestion[]>([]);
   const [timer, setTimer] = React.useState<number>(0);
 
   React.useEffect(() => {
@@ -72,7 +113,7 @@ const PythonQuizWrapper: React.FC = () => {
   );
 };
 const MCQQuizWrapper: React.FC = () => {
-  const [questions, setQuestions] = React.useState<Question[]>([]);
+  const [questions, setQuestions] = React.useState<McqQuestion[]>([]);
   const [timer, setTimer] = React.useState<number>(0);
   const [subject, setSubject] = React.useState<string>('');
 
@@ -106,6 +147,14 @@ const MCQQuizWrapper: React.FC = () => {
   );
 };
 
+const StatisticsPageWrapper: React.FC = () => {
+  const { testId } = useParams<{ testId: string }>();
+  
+  // You might want to fetch the results and totalTime based on the testId
+  // For now, we'll pass empty arrays and 0 as placeholders
+  return <StatisticsPage testId={testId || ''} results={[]} totalTime={0} />;
+};
+
 
 
 const App: React.FC = () => {
@@ -124,7 +173,7 @@ const App: React.FC = () => {
             <Layout>
               <Routes>
                 <Route path="/" element={<HomePage />} />
-                <Route path="/statistics/:testId" element={<StatisticsPage testId="1" />} />
+                <Route path="/statistics/:testId" element={<StatisticsPageWrapper/>} />
                 <Route path="/payment" element={<PaymentPage />} />
                 <Route path="/leaderboard" element={<LeaderboardPage />} />
                 <Route path="/history" element={<History />} />

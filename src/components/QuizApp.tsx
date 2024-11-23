@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import MonacoEditor from '@monaco-editor/react';
@@ -7,33 +9,80 @@ import { Loader2, Video, X } from 'lucide-react';
 import ReactPlayer from 'react-player';
 import StatisticsPage from './StatisticsPage';
 
-export default function QuizApp({ questions, timePerQuestion }) {
+interface TestCase {
+  input: string;
+  expected_output: string;
+}
+
+interface TableData {
+  table_name: string;
+  columns: string[];
+  rows: any[][];
+}
+
+interface Question {
+  question_text: string;
+  expected_output: any[][];
+  difficulty?: string;
+  subtopic?: string;
+  video?: string;
+  table_data?: TableData[];
+}
+
+interface QuestionResult {
+  difficulty: string | null;
+  timeTaken: number;
+  subtopic: string | null;
+  isCorrect: boolean | null;
+  question: Question | null;
+  userAnswer: any | null;
+  timeUp: boolean;
+}
+
+interface TimeTracker {
+  elapsed: number;
+  remaining: number;
+  isPaused: boolean;
+}
+
+interface Feedback {
+  text: string;
+  isCorrect: boolean;
+  expected?: any;
+  userAnswer?: any;
+}
+
+interface QuizAppProps {
+  questions: Question[];
+  timePerQuestion: number;
+}
+
+export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
   const { user, isLoaded } = useUser();
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userQuery, setUserQuery] = useState('');
-  const [feedback, setFeedback] = useState('');
+  const [userQueries, setUserQueries] = useState<string[]>(questions.map(() => ''));
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isRunning, setIsRunning] = useState(false);
-  const [output, setOutput] = useState(null);
+  const [output, setOutput] = useState<any | null>(null);
   const [isTesting, setIsTesting] = useState(false);
   const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
-  const [quizSubmitted, setQuizSubmitted] = useState(false); 
-  const [userQueries, setUserQueries] = useState(questions.map(() => ''))
+  const [quizSubmitted, setQuizSubmitted] = useState(false);
 
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(timePerQuestion * 60);
-  const [timeTrackers, setTimeTrackers] = useState(() => 
-    Array(questions.length).fill().map(() => ({
+  const [timeTrackers, setTimeTrackers] = useState<TimeTracker[]>(() => 
+    Array(questions.length).fill(null).map(() => ({
       elapsed: 0,
       remaining: timePerQuestion * 60,
       isPaused: true
     }))
   );
   const [isTimerRunning, setIsTimerRunning] = useState(true);
-  const [questionResults, setQuestionResults] = useState(() =>
-    Array(questions.length).fill().map(() => ({
+  const [questionResults, setQuestionResults] = useState<QuestionResult[]>(() =>
+    Array(questions.length).fill(null).map(() => ({
       difficulty: null,
       timeTaken: 0,
       subtopic: null,
@@ -43,10 +92,10 @@ export default function QuizApp({ questions, timePerQuestion }) {
       timeUp: false
     }))
   );
-  const [activeTab, setActiveTab] = useState('question');
+  const [activeTab, setActiveTab] = useState<'question' | 'tables'>('question');
 
   useEffect(() => {
-    let timer;
+    let timer: NodeJS.Timeout;
     if (isTimerRunning && !isTimeUp) {
       timer = setInterval(() => {
         setTimeTrackers(prevTrackers => {
@@ -72,7 +121,6 @@ export default function QuizApp({ questions, timePerQuestion }) {
             return tracker;
           });
           
-          // Update timeRemaining based on current question's tracker
           const currentTracker = newTrackers[currentQuestionIndex];
           setTimeRemaining(currentTracker.remaining);
           
@@ -90,33 +138,17 @@ export default function QuizApp({ questions, timePerQuestion }) {
     setTimeRemaining(timeTrackers[currentQuestionIndex].remaining);
   }, [timeTrackers, currentQuestionIndex]);
 
-
-// const handleTimeUp = () => {
-//   setQuestionResults(prevResults => {
-//     const newResults = [...prevResults];
-//     newResults[currentQuestionIndex] = {
-//       ...newResults[currentQuestionIndex],
-//       isCorrect: null,
-//       timeUp: true,
-//       timeTaken: timePerQuestion * 60,
-//       question: questions[currentQuestionIndex],
-//     };
-//     return newResults;
-//   });
-//   setIsTimerRunning(false);
-//   setFeedback({ text: 'Time is up!', isCorrect: false });
-// };
-
   useEffect(() => {
     setTimeRemaining(timePerQuestion * 60);
     setIsTimerRunning(true);
   }, [currentQuestionIndex, timePerQuestion]);
 
-  const formatTime = (seconds) => {
+  const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
+
   const openVideoPopup = () => {
     const currentQuestion = questions[currentQuestionIndex];
     if (currentQuestion.video) {
@@ -148,12 +180,6 @@ export default function QuizApp({ questions, timePerQuestion }) {
       
       updateQuestionResult(isCorrect, userAnswer);
       
-      // setFeedback({
-      //   text: isCorrect ? 'Correct!' : 'Incorrect. Please try again.',
-      //   isCorrect: isCorrect,
-      //   userAnswer: userAnswer
-      // });
-      
       setOutput(userAnswer);
     } catch (error) {
       setFeedback({ text: 'Error running code', isCorrect: false });
@@ -163,8 +189,7 @@ export default function QuizApp({ questions, timePerQuestion }) {
     }
   };
 
-
- const handleTestCode = async () => {
+  const handleTestCode = async () => {
     if (isTimeUp) {
       setFeedback({ text: 'Time is up! Cannot test answer.', isCorrect: false });
       return;
@@ -199,7 +224,7 @@ export default function QuizApp({ questions, timePerQuestion }) {
     }
   };
   
-  const compareResults = (userResults, expectedOutput) => {
+  const compareResults = (userResults: any[], expectedOutput: any[][]): boolean => {
     if (userResults.length !== expectedOutput.length) {
       return false;
     }
@@ -210,14 +235,12 @@ export default function QuizApp({ questions, timePerQuestion }) {
     return userResultString === expectedString;
   };
   
-  const handleQuestionSelect = (index) => {
-    // Save current question state if switching without answering
+  const handleQuestionSelect = (index: number) => {
     if (!questionResults[currentQuestionIndex].isCorrect && 
         !questionResults[currentQuestionIndex].timeUp) {
       updateQuestionResult(null);
     }
 
-    // Update timer states
     setTimeTrackers(prevTrackers => 
       prevTrackers.map((tracker, i) => ({
         ...tracker,
@@ -225,17 +248,15 @@ export default function QuizApp({ questions, timePerQuestion }) {
       }))
     );
 
-    // Update the current question and reset states
     setCurrentQuestionIndex(index);
     setTimeRemaining(timeTrackers[index].remaining);
-    setFeedback('');
+    setFeedback(null);
     setOutput(null);
     setIsTimeUp(timeTrackers[index].remaining <= 0);
     setIsTimerRunning(timeTrackers[index].remaining > 0);
   };
 
-
-  const updateQuestionResult = (isCorrect = null, userAnswer = null) => {
+  const updateQuestionResult = (isCorrect: boolean | null = null, userAnswer: any = null) => {
     const currentQuestion = questions[currentQuestionIndex];
     const timeTaken = timeTrackers[currentQuestionIndex].elapsed;
 
@@ -258,10 +279,7 @@ export default function QuizApp({ questions, timePerQuestion }) {
     }
   };
 
-
-
   const handleNextQuestion = () => {
-    // Save current question state if moving without answering
     if (!questionResults[currentQuestionIndex].isCorrect && 
         !questionResults[currentQuestionIndex].timeUp) {
       updateQuestionResult(null);
@@ -271,7 +289,7 @@ export default function QuizApp({ questions, timePerQuestion }) {
 
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prevIndex => prevIndex + 1);
-      setFeedback('');
+      setFeedback(null);
       setOutput(null);
       setIsTimeUp(false);
       setIsTimerRunning(true);
@@ -280,53 +298,47 @@ export default function QuizApp({ questions, timePerQuestion }) {
     }
   };
 
-
-
- const handleSubmitQuiz = async () => {
-  setIsTimerRunning(false);
-  
-  // Ensure all questions have a result
-  questions.forEach((question, index) => {
-    if (!questionResults[index].isCorrect && !questionResults[index].timeUp) {
-      updateQuestionResult(null);
-    }
-  });
-
-  try {
-    const response = await fetch('https://server.datasenseai.com/custom-test/submit-quiz', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        clerkId: user?.id || 'anonymous',
-        subject: 'SQL (Coding)',
-        results: [{
-          questions: questionResults.map(result => ({
-            ...result,
-            question: questions[result.questionIndex], // Include the actual question
-            timeUp: result.timeUp || false,
-            submittedAt: new Date()
-          }))
-        }]
-      }),
+  const handleSubmitQuiz = async () => {
+    setIsTimerRunning(false);
+    
+    questions.forEach((_question, index) => {
+      if (!questionResults[index].isCorrect && !questionResults[index].timeUp) {
+        updateQuestionResult(null);
+      }
     });
 
-    if (response.ok) {
-      const data = await response.json();
-      console.log('Quiz submitted successfully!', data);
-      setQuizSubmitted(true);
-      // Handle successful submission (e.g., redirect to results page)
-    } else {
-      throw new Error(`Failed to submit quiz: ${response.statusText}`);
+    try {
+      const response = await fetch('https://server.datasenseai.com/custom-test/submit-quiz', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          clerkId: user?.id || 'anonymous',
+          subject: 'SQL (Coding)',
+          results: [{
+            questions: questionResults.map((result, index) => ({
+              ...result,
+              question: questions[index],
+              timeUp: result.timeUp || false,
+              submittedAt: new Date()
+            }))
+          }]
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Quiz submitted successfully!', data);
+        setQuizSubmitted(true);
+      } else {
+        throw new Error(`Failed to submit quiz: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Error submitting quiz:', error);
+      alert('Failed to submit quiz. Please try again.');
     }
-  } catch (error) {
-    console.error('Error submitting quiz:', error);
-    alert('Failed to submit quiz. Please try again.');
-  }
-};
-
-
+  };
 
   if (!questions || questions.length === 0) return (
     <div className="w-full h-screen flex flex-col items-center justify-center">
@@ -394,7 +406,7 @@ export default function QuizApp({ questions, timePerQuestion }) {
           <div className={`flex gap-10 ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4 h-1/8 relative`}>
             <div className="overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 hover:scrollbar-thumb-gray-500">
               <ul className="flex flex-nowrap gap-4 py-2">
-                {questions.map((question, index) => (
+                {questions.map((_question, index) => (
                   <li
                     key={index}
                     className={`cursor-pointer py-2 px-4 rounded border ${
@@ -419,7 +431,7 @@ export default function QuizApp({ questions, timePerQuestion }) {
               <button
                 key={tab}
                 className={`py-2 px-4 ${activeTab === tab.toLowerCase() ? 'border-b-2 border-teal-500' : ''}`}
-                onClick={() => setActiveTab(tab.toLowerCase())}
+                onClick={() => setActiveTab(tab.toLowerCase() as 'question' | 'tables')}
               >
                 {tab}
               </button>
@@ -459,7 +471,11 @@ export default function QuizApp({ questions, timePerQuestion }) {
                             <tr key={rowIndex}>
                               {row.map((cell, cellIndex) => (
                                 <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">
-                                  {typeof cell === 'object' ? JSON.stringify(cell) : cell}
+                                  {cell !== null && cell !== undefined
+                                    ? typeof cell === 'object'
+                                      ? JSON.stringify(cell)
+                                      : String(cell)
+                                    : ''}
                                 </td>
                               ))}
                             </tr>
@@ -513,12 +529,12 @@ export default function QuizApp({ questions, timePerQuestion }) {
               height="100%"
               language="sql"
               theme={isDarkMode ? "vs-dark" : "light"}
-             value={userQueries[currentQuestionIndex]}
-  onChange={(value) => {
-    const newQueries = [...userQueries]
-    newQueries[currentQuestionIndex] = value
-    setUserQueries(newQueries)
-  }}
+              value={userQueries[currentQuestionIndex]}
+              onChange={(value) => {
+                const newQueries = [...userQueries];
+                newQueries[currentQuestionIndex] = value || '';
+                setUserQueries(newQueries);
+              }}
               options={{
                 minimap: { enabled: false },
                 scrollBeyondLastLine: false,
@@ -583,7 +599,11 @@ export default function QuizApp({ questions, timePerQuestion }) {
                               <tr key={rowIndex} className={isDarkMode ? 'bg-[#262626]' : 'bg-gray-50'}>
                                 {Object.values(row).map((cell, cellIndex) => (
                                   <td key={cellIndex} className="border px-4 py-2 whitespace-nowrap">
-                                    {typeof cell === 'object' ? JSON.stringify(cell) : cell}
+                                    {cell !== null && cell !== undefined
+                                      ? typeof cell === 'object'
+                                        ? JSON.stringify(cell)
+                                        : String(cell)
+                                      : ''}
                                   </td>
                                 ))}
                               </tr>

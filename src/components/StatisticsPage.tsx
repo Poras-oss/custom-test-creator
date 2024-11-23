@@ -11,10 +11,88 @@ interface QuestionResult {
   timeTaken: number
 }
 
+interface TestCase {
+  input: string;
+  expected_output: string;
+}
+
+interface Question {
+  question_text: string;
+  test_cases: TestCase[];
+  boilerplate_code?: string;
+  difficulty?: string;
+  subtopic?: string;
+  video?: string;
+}
+
+
+interface PythonQuestionResult {
+  difficulty: string;
+  timeTaken: number;
+  subtopic: string;
+  isCorrect: boolean | null;
+  question: Question;
+  userAnswer: string | null;
+  timeUp: boolean;
+  questionIndex: number; // Add this line
+}
+
+
+interface TableData {
+  table_name: string;
+  columns: string[];
+  rows: any[][];
+}
+
+interface SqlQuestion {
+  question_text: string;
+  expected_output: any[][];
+  difficulty?: string;
+  subtopic?: string;
+  video?: string;
+  table_data?: TableData[];
+}
+
+interface SqlQuestionResult {
+  difficulty: string | null;
+  timeTaken: number;
+  subtopic: string | null;
+  isCorrect: boolean | null;
+  question: SqlQuestion | null;
+  userAnswer: any | null;
+  timeUp: boolean;
+}
+
+interface Option {
+  [key: string]: string;
+}
+
+interface McqQuestion {
+  question_text: string;
+  options: Option;
+  correct_answer: string;
+  difficulty?: string;
+  subtopic?: string;
+}
+
+interface McqQuestionResult {
+  difficulty: string | null;
+  timeTaken: number;
+  subtopic: string | null;
+  isCorrect: boolean;
+  question: McqQuestion;
+  userAnswer: string | null;
+  timeUp: boolean;
+}
+
+
+
+type ResultType = QuestionResult | PythonQuestionResult | SqlQuestionResult | McqQuestionResult;
+
 interface StatisticsProps {
-  testId: string
-  results: QuestionResult[]
-  totalTime: number
+  testId: string;
+  results: ResultType[];
+  totalTime: number;
 }
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8']
@@ -31,7 +109,7 @@ const StatisticsPage: React.FC<StatisticsProps> = ({ testId, results, totalTime 
       existingSubtopic.total++
     } else {
       acc.push({
-        name: result.subtopic,
+        name: result.subtopic || 'Unknown',
         correct: result.isCorrect ? 1 : 0,
         incorrect: result.isCorrect ? 0 : 1,
         total: 1
@@ -47,7 +125,7 @@ const StatisticsPage: React.FC<StatisticsProps> = ({ testId, results, totalTime 
       existingDifficulty.total++
     } else {
       acc.push({
-        name: result.difficulty,
+        name: result.difficulty || 'Unknown',
         correct: result.isCorrect ? 1 : 0,
         incorrect: result.isCorrect ? 0 : 1,
         total: 1
@@ -129,7 +207,7 @@ const StatisticsPage: React.FC<StatisticsProps> = ({ testId, results, totalTime 
                     dataKey="value"
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   >
-                    {timeDistributionData.map((entry, index) => (
+                    {timeDistributionData.map((_entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
