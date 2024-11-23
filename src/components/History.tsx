@@ -40,7 +40,7 @@ interface CustomTest {
 
 // Add this interface to match the expected ResultType
 interface ResultType {
-  difficulty: string | null;
+  difficulty: string;
   timeTaken: number;
   subtopic: string | null;
   isCorrect: boolean;
@@ -120,19 +120,22 @@ export default function CustomTestList() {
       subtopic: q.subtopic,
       isCorrect: q.isCorrect,
       question: {
-        question_text: q.question.question_text,
-        options: q.question.options.reduce((acc, option, index) => {
-          acc[String.fromCharCode(65 + index)] = option;
-          return acc;
-        }, {} as { [key: string]: string }),
-        correct_answer: q.question.correct_answer,
-        difficulty: q.question.difficulty,
+        question_text: q.question?.question_text || 'Dummy question text',
+        options: q.question?.options
+          ? q.question.options.reduce((acc, option, index) => {
+              acc[String.fromCharCode(65 + index)] = option;
+              return acc;
+            }, {} as { [key: string]: string })
+          : { A: 'Dummy option A', B: 'Dummy option B', C: 'Dummy option C', D: 'Dummy option D' },
+        correct_answer: q.question?.correct_answer || 'A',
+        difficulty: q.question?.difficulty || q.difficulty,
       },
       userAnswer: q.userAnswer,
       timeUp: q.timeUp,
     }));
 
     const totalTime = selectedSubmission.questions.reduce((total, q) => total + (q.timeTaken || 0), 0);
+
 
     return (
       <div className="container mx-auto w-full p-6">

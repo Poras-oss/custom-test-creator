@@ -4,6 +4,7 @@ import { Home, History, Trophy, Menu, Sun, Moon } from 'lucide-react';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import { ScrollArea } from './ui/scroll-area';
+import { UserButton, useUser, SignInButton } from '@clerk/clerk-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -13,6 +14,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDarkTheme, setIsDarkTheme] = useState(false);
+
+  const { isLoaded, isSignedIn, user } = useUser() // Get the current user from Clerk
 
   // Load theme preference from localStorage on mount
   useEffect(() => {
@@ -43,8 +46,25 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <div className="hidden lg:flex lg:w-64 lg:flex-col">
         <div className="flex flex-col gap-2 border-r p-6">
           <div className="flex h-16 items-center px-4">
-            <h1 className="text-2xl font-bold">Quiz Platform</h1>
+            {/* <h1 className="text-2xl font-bold">Quiz Platform</h1> */}
+                 {/* Welcome message */}
+          {user && (
+            <div className="mt-3 text-lg font-medium">
+              Welcome, {user.firstName || user.username}!
+            </div>
+          )}
+               {/* Clerk User Button */}
+               <div className="mt-auto flex justify-center mb-4">
+               {isLoaded && isSignedIn ? (
+            <UserButton afterSignOutUrl={'/'} />
+          ) : (
+            <SignInButton mode="modal" fallbackRedirectUrl={'/'} signUpForceRedirectUrl={'/'}>
+              <Button>Log In</Button>
+            </SignInButton>
+          )}
           </div>
+          </div>
+          
           <ScrollArea className="flex-1">
             <nav className="flex flex-col h-screen gap-2 p-4">
               {navigation.map((item) => {
@@ -64,6 +84,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               })}
             </nav>
           </ScrollArea>
+    
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
