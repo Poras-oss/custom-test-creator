@@ -106,7 +106,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </SheetTrigger>
         <SheetContent side="left" className="w-64">
           <div className="flex h-16 items-center">
-            <h1 className="text-2xl font-bold">Quiz Platform</h1>
+            {/* <h1 className="text-2xl font-bold">Quiz Platform</h1> */}
+              {/* Welcome message */}
+          {user && (
+            <div className="mt-3 text-lg font-medium">
+              Welcome, {user.firstName || user.username}!
+            </div>
+          )}
+               {/* Clerk User Button */}
+               <div className="mt-auto flex justify-center mb-4">
+               {isLoaded && isSignedIn ? (
+            <UserButton afterSignOutUrl={'/'} />
+          ) : (
+            <SignInButton mode="modal" fallbackRedirectUrl={'/'} signUpForceRedirectUrl={'/'}>
+              <Button>Log In</Button>
+            </SignInButton>
+          )}
+          </div>
           </div>
           <ScrollArea className="flex-1">
             <nav className="flex flex-col gap-2 p-4">
