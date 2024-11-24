@@ -49,12 +49,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {/* <h1 className="text-2xl font-bold">Quiz Platform</h1> */}
                  {/* Welcome message */}
           {user && (
-            <div className="mt-3 text-lg font-medium">
+            <div className="mt-3 text-lg font-medium ">
               Welcome, {user.firstName || user.username}!
             </div>
           )}
                {/* Clerk User Button */}
-               <div className="mt-auto flex justify-center mb-4">
+               <div className="mt-auto flex justify-center mb-3 ml-2">
                {isLoaded && isSignedIn ? (
             <UserButton afterSignOutUrl={'/'} />
           ) : (
@@ -114,7 +114,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
           )}
                {/* Clerk User Button */}
-               <div className="mt-auto flex justify-center mb-4">
+               <div className="mt-auto flex justify-center mb-3 ml-2">
                {isLoaded && isSignedIn ? (
             <UserButton afterSignOutUrl={'/'} />
           ) : (

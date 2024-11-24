@@ -70,6 +70,7 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
   const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
   const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(timePerQuestion * 60);
@@ -174,7 +175,8 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
     try {
       const response = await axios.get(`https://server.datasenseai.com/execute-sql/query?q=${encodeURIComponent(userQueries[currentQuestionIndex])}`);
       const userAnswer = response.data;
-      
+
+
       const expectedOutput = questions[currentQuestionIndex].expected_output;
       const isCorrect = compareResults(userAnswer, expectedOutput);
       
@@ -182,8 +184,8 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
       
       setOutput(userAnswer);
     } catch (error) {
-      setFeedback({ text: 'Error running code', isCorrect: false });
-      setOutput('Error executing query');
+      // setFeedback({ text: 'Error running code', isCorrect: false });
+      setOutput('Error executing query'+error);
     } finally {
       setIsRunning(false);
     }
@@ -195,9 +197,10 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
       return;
     }
 
+
     setIsTesting(true);
     try {
-      const response = await axios.get(`https://server.datasenseai.com/execute-sql/query?q=${encodeURIComponent(userQueries[currentQuestionIndex])}`);
+       const response = await axios.get(`https://server.datasenseai.com/execute-sql/query?q=${encodeURIComponent(userQueries[currentQuestionIndex])}`);
       const userAnswer = response.data;
       
       const expectedOutput = questions[currentQuestionIndex].expected_output;
@@ -218,7 +221,8 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
       setOutput(userAnswer);
     } catch (error) {
       setFeedback({ text: 'Error testing code', isCorrect: false });
-      setOutput('Error executing query');
+      setOutput('Error executing query-> ');
+      
     } finally {
       setIsTesting(false);
     }
@@ -300,6 +304,7 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
 
   const handleSubmitQuiz = async () => {
     setIsTimerRunning(false);
+    setIsSubmitting(true);
     
     questions.forEach((_question, index) => {
       if (!questionResults[index].isCorrect && !questionResults[index].timeUp) {
@@ -348,6 +353,7 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
   );
 
   if (quizSubmitted) {
+  
     return (
       <StatisticsPage
         testId={user?.id || 'anonymous'}
@@ -368,7 +374,7 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
                   onClick={handleNextQuestion}
                   className="px-3 py-1 rounded text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200"
                 >
-                  {currentQuestionIndex === questions.length - 1 ? 'Submit Quiz' : 'Next Question'}
+                  {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
                 </button>)}
        
           <div className="text-lg font-semibold">

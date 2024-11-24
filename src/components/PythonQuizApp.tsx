@@ -69,6 +69,7 @@ export default function PythonQuizApp({ questions, timePerQuestion } : PythonQui
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isQuizSubmitting, setIsQuizSubmitting] = useState(false);
   const [output, setOutput] = useState<string | null>(null);
   const [isVideoPopupOpen, setIsVideoPopupOpen] = useState(false);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
@@ -285,7 +286,7 @@ export default function PythonQuizApp({ questions, timePerQuestion } : PythonQui
 
   const handleSubmitQuiz = async () => {
     setIsTimerRunning(false);
-    
+    setIsQuizSubmitting(true);
     questions.forEach((_question, index) => {
       if (!questionResults[index].isCorrect && !questionResults[index].timeUp) {
         updateQuestionResult(false);
@@ -356,7 +357,7 @@ export default function PythonQuizApp({ questions, timePerQuestion } : PythonQui
         onClick={handleSubmitQuiz}
         disabled={isRunning}
       > 
-        Submit Quiz
+        {isQuizSubmitting ? 'Submitting...' : 'Submit Quiz'}
       </button>)}
           <div className="text-lg font-semibold">
             Time remaining: {formatTime(timeRemaining)}

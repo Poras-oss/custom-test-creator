@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, SignInButton } from "@clerk/clerk-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { ScrollArea } from "./ui/scroll-area";
 import { Loader2 } from 'lucide-react';
@@ -55,7 +55,7 @@ interface ResultType {
 }
 
 export default function CustomTestList() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const [customTest, setCustomTest] = useState<CustomTest | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -78,11 +78,13 @@ export default function CustomTestList() {
         } finally {
           setLoading(false);
         }
+      } else if (isLoaded) {
+        setLoading(false);
       }
     };
 
     fetchTests();
-  }, [user]);
+  }, [user, isLoaded]);
 
   const handleSubmissionClick = (submission: Submission) => {
     setSelectedSubmission(submission);
@@ -92,11 +94,37 @@ export default function CustomTestList() {
     setSelectedSubmission(null);
   };
 
-  if (loading) {
+  if (!isLoaded || loading) {
     return (
       <div className="w-full h-screen flex flex-col items-center justify-center">
         <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
         <h5 className="mt-4 text-2xl font-thin text-gray-700">Loading...</h5>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="container mx-auto p-6 max-w-4xl">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">Login Required</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Authentication Required</AlertTitle>
+              <AlertDescription>
+                Please log in to view your custom tests.
+              </AlertDescription>
+            </Alert>
+            <SignInButton mode="modal" fallbackRedirectUrl={'/'} signUpForceRedirectUrl={'/'}>
+            <Button className="mt-2">
+              Sign In
+            </Button>
+            </SignInButton>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -136,7 +164,6 @@ export default function CustomTestList() {
 
     const totalTime = selectedSubmission.questions.reduce((total, q) => total + (q.timeTaken || 0), 0);
 
-
     return (
       <div className="container mx-auto w-full p-6">
         <Button onClick={handleBackClick} className="mb-4">Back to List</Button>
@@ -156,11 +183,11 @@ export default function CustomTestList() {
           <CardTitle className="text-2xl font-bold">Your Custom Tests</CardTitle>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-[60vh]">
+          <ScrollArea className="h-[100vh]">
             {!customTest || !customTest.submissions || customTest.submissions.length === 0 ? (
               <p className="text-center text-gray-500 dark:text-gray-400">No tests found.</p>
             ) : (
-              customTest.submissions.map((submission, index) => (
+              customTest.submissions.slice().reverse().map((submission, index) => (
                 <Card
                   key={submission._id}
                   className="mb-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -203,4 +230,3 @@ export default function CustomTestList() {
     </div>
   );
 }
-

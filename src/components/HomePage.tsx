@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Slider } from './ui/slider';
 import { Switch } from './ui/switch';
 import { Label } from './ui/label';
 import { Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
+import { UserButton, useUser, SignInButton } from '@clerk/clerk-react';
+import { AlertCircle } from 'lucide-react';
 
 
 
@@ -39,6 +41,8 @@ const HomePage: React.FC = () => {
     timePerQuestion: 5,
   });
 
+  const { isLoaded, isSignedIn, user } = useUser() 
+
   const [questions, setQuestions] = useState<Question[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showQuiz, setShowQuiz] = useState(false);
@@ -46,8 +50,36 @@ const HomePage: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
 
+  const validateForm = (): string | null => {
+    if (!formData.topic) return "Please select a topic.";
+    if (!formData.questionType) return "Please select a question type.";
+    if (!formData.difficulty) return "Please select a difficulty level.";
+    return null;
+  };
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isLoaded) {
+      setError('Authentication is still loading. Please wait.');
+      return;
+    }
+
+    if (!user) {
+      setError('You must be logged in to create a test.');
+      return;
+    }
+
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
     setLoading(true);
     setError(null);
 
@@ -121,6 +153,13 @@ const HomePage: React.FC = () => {
           <CardDescription>Configure your test settings below</CardDescription>
         </CardHeader>
         <CardContent>
+        {error && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Form content */}
             <div className="space-y-4">

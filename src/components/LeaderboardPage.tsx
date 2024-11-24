@@ -42,7 +42,15 @@ const mockLeaderboard: LeaderboardEntry[] = [
 
 const LeaderboardPage: React.FC = () => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Blur overlay */}
+      <div className="absolute inset-0 backdrop-blur-sm z-10 flex items-center justify-center">
+        <div className="bg-background/80 p-6 rounded-lg shadow-lg">
+          <h2 className="text-3xl font-bold text-primary">Available soon!</h2>
+          {/* <p className="text-muted-foreground mt-2">Our leaderboard is under construction.</p> */}
+        </div>
+      </div>
+
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Leaderboard</h1>
         <div className="text-sm text-muted-foreground">Updated hourly</div>
@@ -94,3 +102,4 @@ const LeaderboardPage: React.FC = () => {
 }
 
 export default LeaderboardPage
+
