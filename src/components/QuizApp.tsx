@@ -576,7 +576,7 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
     <table className="min-w-full divide-y divide-gray-200">
       <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
         <tr>
-        {currentQuestion.expected_output?.[0]?.map((column, columnIndex) => (
+        {currentQuestion.table_data?.[0]?.columns.slice(0,currentQuestion.expected_output[0].length).map((column, columnIndex) => (
             <th
               key={columnIndex}
               className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
