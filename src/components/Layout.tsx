@@ -41,9 +41,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   ];
 
   return (
-    <div className={`flex min-h-screen ${isDarkTheme ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
+    <div className={`flex min-h-screen ${isDarkTheme ? 'bg-[#2a2a2a] text-white' : 'bg-gray-100 text-black'}`}>
       {/* Desktop Sidebar */}
-      <div className="hidden lg:flex lg:w-64 lg:flex-col">
+      <div className={`hidden lg:flex lg:w-64 lg:flex-col ${isDarkTheme ?'bg-[#1a1a1a] text-white' : 'bg-white text-black'}`}>
         <div className="flex flex-col gap-2 border-r p-6">
           <div className="flex h-16 items-center px-4">
             {/* <h1 className="text-2xl font-bold">Quiz Platform</h1> */}
