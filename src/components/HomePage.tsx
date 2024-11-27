@@ -6,7 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Slider } from './ui/slider';
 import { Switch } from './ui/switch';
 import { Label } from './ui/label';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { UserButton, useUser, SignInButton } from '@clerk/clerk-react';
 import { AlertCircle } from 'lucide-react';
@@ -146,14 +146,32 @@ const HomePage: React.FC = () => {
   // }
 
   return (
-    <div className="mx-auto max-w">
+    <div className="mx-auto max-w-4xl">
+      <div className="mb-6 overflow-hidden rounded-lg shadow-lg bg-gradient-to-r from-blue-700 via-blue-500 to-blue-900">
+        <div className="relative p-6">
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <div className="flex-1 text-center md:text-left mb-4 md:mb-0">
+              <h2 className="text-xl md:text-3xl font-bold text-white mb-2 animate-bounce">
+                You're a premium member!
+              </h2>
+              <p className="text-white text-xs md:text-base leading-relaxed animate-fade-in-up">
+                Enjoy unlimited access to all test series, Q&A sessions, and the exclusive coderpad. Keep pushing your limits and excelling!
+              </p>
+            </div>
+            <div className="flex-shrink-0">
+              <Star className="w-16 h-10 text-blue-300" />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle>Create Custom Test</CardTitle>
           <CardDescription>Configure your test settings below</CardDescription>
         </CardHeader>
         <CardContent>
-        {error && (
+          {error && (
             <Alert variant="destructive" className="mb-6">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Error</AlertTitle>
@@ -161,9 +179,7 @@ const HomePage: React.FC = () => {
             </Alert>
           )}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Form content */}
             <div className="space-y-4">
-              {/* Question Pool */}
               <div className="flex items-center justify-between">
                 <Label htmlFor="questionPool">Question Pool</Label>
                 <Select
@@ -180,7 +196,6 @@ const HomePage: React.FC = () => {
                 </Select>
               </div>
               
-              {/* Include Attempted Questions */}
               <div className="flex items-center justify-between">
                 <Label htmlFor="includeAttempted">Include Attempted Questions</Label>
                 <Switch
@@ -190,7 +205,6 @@ const HomePage: React.FC = () => {
                 />
               </div>
               
-              {/* Number of Questions */}
               <div className="space-y-2">
                 <Label>Number of Questions: {formData.numQuestions}</Label>
                 <Slider
@@ -202,7 +216,6 @@ const HomePage: React.FC = () => {
                 />
               </div>
               
-              {/* Topic */}
               <div className="flex items-center justify-between">
                 <Label htmlFor="topic">Topic</Label>
                 <Select
@@ -219,7 +232,6 @@ const HomePage: React.FC = () => {
                 </Select>
               </div>
               
-              {/* Question Type */}
               <div className="flex items-center justify-between">
                 <Label htmlFor="questionType">Question Type</Label>
                 <Select
@@ -236,7 +248,6 @@ const HomePage: React.FC = () => {
                 </Select>
               </div>
               
-              {/* Difficulty */}
               <div className="flex items-center justify-between">
                 <Label htmlFor="difficulty">Difficulty</Label>
                 <Select
@@ -255,7 +266,6 @@ const HomePage: React.FC = () => {
                 </Select>
               </div>
               
-              {/* Time per Question */}
               <div className="space-y-2">
                 <Label>Time per Question (minutes): {formData.timePerQuestion}</Label>
                 <Slider
@@ -268,7 +278,6 @@ const HomePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Submit Button */}
             <div className="flex items-center justify-center">
               <Button type="submit" className="w-1/3" disabled={loading}>
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
