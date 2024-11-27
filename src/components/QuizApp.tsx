@@ -57,6 +57,37 @@ interface QuizAppProps {
   timePerQuestion: number;
 }
 
+type Output = 
+  | string 
+  | number 
+  | Record<string, any>[] // Array of objects for table rows
+  | null;
+
+// Interface for Table Row
+interface TableRow {
+  [key: string]: any; // Each row can have dynamic key-value pairs
+}
+
+// Interface for Output Prop (TableOutput component)
+interface TableOutputProps {
+  output: TableRow[];   // Array of objects representing table rows
+  isDarkMode: boolean;  // Dark mode toggle for styling
+}
+
+// Interface for Error Details
+interface ErrorDetails {
+  message: string;      // Error message
+  details?: string;     // Optional detailed error information
+  code?: string;        // Optional error code
+  sql?: string;         // Optional SQL query associated with the error
+}
+
+// Interface for ErrorOutput Prop (ErrorOutput component)
+interface ErrorOutputProps {
+  error: ErrorDetails;  // Error details passed as a prop
+}
+
+
 export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
   const { user, isLoaded } = useUser();
 
@@ -365,6 +396,53 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
 
   const currentQuestion = questions[currentQuestionIndex];
 
+
+  const TableOutput = ({ output, isDarkMode }: TableOutputProps) => (
+    <table className="w-full border-collapse">
+      <thead>
+        <tr className={isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'}>
+          {Object.keys(output[0]).map((header, index) => (
+            <th key={index} className="border px-4 py-2">
+              {header}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {output.map((row, rowIndex) => (
+          <tr key={rowIndex} className={isDarkMode ? 'bg-[#262626]' : 'bg-gray-50'}>
+            {Object.values(row).map((cell, cellIndex) => (
+              <td key={cellIndex} className="border px-4 py-2 whitespace-nowrap">
+                {cell !== null && cell !== undefined
+                  ? typeof cell === 'object'
+                    ? JSON.stringify(cell)
+                    : String(cell)
+                  : ''}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+  
+  // Helper component to render error output
+  const ErrorOutput = ({ error }: ErrorOutputProps) => (
+    <div className="text-red-600 bg-white-50 border border-grey-400 rounded-md p-4">
+      <p className="font-bold">Error:</p>
+      <p>
+        <strong>Message:</strong> {error.message}
+      </p>
+      <p>
+        <strong>Details:</strong> {error.details}
+      </p>
+      <p>
+        <strong>Error Code:</strong> {error.code}
+      </p>
+    
+    </div>
+  );
+
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-black'}`}>
       <nav className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex justify-between items-center`}>
@@ -588,40 +666,19 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
                   </div>
                 )}
                 {output !== null && (
-                  <div className="mt-2 flex flex-col space-y-4">
-                    <div className='font-semibold'>OUTPUT</div>
-                    <div className="overflow-x-auto">
-                      {Array.isArray(output) && output.length > 0 ? (
-                        <table className="w-full border-collapse">
-                          <thead>
-                            <tr className={isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'}>
-                              {Object.keys(output[0]).map((header, index) => (
-                                <th key={index} className="border px-4 py-2">{header}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {output.map((row, rowIndex) => (
-                              <tr key={rowIndex} className={isDarkMode ? 'bg-[#262626]' : 'bg-gray-50'}>
-                                {Object.values(row).map((cell, cellIndex) => (
-                                  <td key={cellIndex} className="border px-4 py-2 whitespace-nowrap">
-                                    {cell !== null && cell !== undefined
-                                      ? typeof cell === 'object'
-                                        ? JSON.stringify(cell)
-                                        : String(cell)
-                                      : ''}
-                                  </td>
-                                ))}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      ) : (
-                        <p>{output}</p>
-                      )}
-                    </div>
-                  </div>
-                )}
+  <div className="mt-2 flex flex-col space-y-4">
+    <div className="font-semibold">OUTPUT</div>
+    <div className="overflow-x-auto">
+      {Array.isArray(output) && output.length > 0 ? (
+        <TableOutput output={output} isDarkMode={isDarkMode} />
+      ) : typeof output === 'object' && output.error ? (
+        <ErrorOutput error={output} />
+      ) : (
+        <p>{output}</p>
+      )}
+    </div>
+  </div>
+)}
               </div>
             </div>
           </Split>
