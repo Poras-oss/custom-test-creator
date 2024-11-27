@@ -151,7 +151,7 @@ const HomePage: React.FC = () => {
         <div className="relative p-6">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="flex-1 text-center md:text-left mb-4 md:mb-0">
-              <h2 className="text-xl md:text-3xl font-bold text-white mb-2 animate-bounce">
+              <h2 className="text-xl md:text-3xl font-bold text-white mb-2 animate-bounce-short">
                 You're a premium member!
               </h2>
               <p className="text-white text-xs md:text-base leading-relaxed animate-fade-in-up">
