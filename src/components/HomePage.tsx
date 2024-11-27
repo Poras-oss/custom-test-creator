@@ -146,7 +146,7 @@ const HomePage: React.FC = () => {
   // }
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto  w-full">
       <div className="mb-6 overflow-hidden rounded-lg shadow-lg bg-gradient-to-r from-blue-700 via-blue-500 to-blue-900">
         <div className="relative p-6">
           <div className="flex flex-col md:flex-row items-center justify-between">

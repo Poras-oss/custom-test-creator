@@ -566,30 +566,40 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
                           ))}
                         </tbody>
                       </table>
-                       <h3 className="text-lg font-bold mb-2">Expected Answer</h3>
-                  <table className="min-w-full divide-y divide-gray-200">
-                  <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
-                          <tr>
-                            {table.columns.map((column, columnIndex) => (
-                              <th key={columnIndex} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                                {column}
-                              </th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white divide-y divide-gray-200'}>
-                      {currentQuestion.expected_output.slice(0,10).map((row, rowIndex) => (
-                        <tr key={rowIndex} >
-                          {row.map((value, cellIndex) => (
-                            <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">{value}</td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  
                     </div>
                   </div>
                 ))}
+                   {currentQuestion.expected_output && (
+  <div>
+    <h3 className="text-lg font-bold mb-2">Expected Answer</h3>
+    <table className="min-w-full divide-y divide-gray-200">
+      <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
+        <tr>
+        {currentQuestion.expected_output?.[0]?.map((column, columnIndex) => (
+            <th
+              key={columnIndex}
+              className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+            >
+              {column}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white divide-y divide-gray-200'}>
+        {currentQuestion.expected_output.slice(0, 10).map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {row.map((value, cellIndex) => (
+              <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">
+                {value}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
               </div>
               
             )}

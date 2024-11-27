@@ -177,7 +177,7 @@ export default function CustomTestList() {
   }
 
   return (
-    <div className="container mx-auto w-full p-6 ">
+    <div className="container mx-auto w-full  ">
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl font-bold">Your Custom Tests</CardTitle>
