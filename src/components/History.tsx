@@ -60,6 +60,15 @@ export default function CustomTestList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
+  const [isDarkTheme, setIsDarkTheme] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      setIsDarkTheme(savedTheme === 'dark');
+      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+    }
+  }, []);
 
   useEffect(() => {
     const fetchTests = async () => {
@@ -98,7 +107,8 @@ export default function CustomTestList() {
     return (
       <div className="w-full h-screen flex flex-col items-center justify-center">
         <Loader2 className="w-16 h-16 text-blue-500 animate-spin" />
-        <h5 className="mt-4 text-2xl font-thin text-gray-700">Loading...</h5>
+        <h5 className={`${isDarkTheme ? "mt-4 text-2xl font-thin text-white-700" : "mt-4 text-2xl font-thin text-gray-700"}`}>Loading...</h5>
+        
       </div>
     );
   }
