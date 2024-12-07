@@ -473,7 +473,7 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
         </div>
       </nav>
       <Split
-        className="flex h-[calc(100vh-4rem)]"
+        className="flex h-screen"
         sizes={[50, 50]}
         minSize={300}
         expandToMin={false}
