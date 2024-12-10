@@ -28,12 +28,25 @@ interface TableData {
   rows: any[][];
 }
 
+interface ExpectedOutput {
+  columns: string[];
+  rows: any[][];
+  length: number;
+}
+
 interface SqlQuestion {
   question_text: string;
-  expected_output: any[][];
+  expected_output: ExpectedOutput
   difficulty?: string;
   subtopic?: string;
   video?: string;
+  scenario: string;
+  'data-overview': string;
+  company: string[];
+  common_mistakes: string;
+  ideal_time: string;
+  interview_probability: string;
+  roles: string;
   table_data?: TableData[];
 }
 interface TestCase {
