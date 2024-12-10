@@ -14,5 +14,7 @@
       "@/*": ["src/*"]
     },
     "noUnusedLocals": false,
+    "skipLibCheck": true,
+    // "suppressImplicitAnyIndexErrors": true
   }
 }

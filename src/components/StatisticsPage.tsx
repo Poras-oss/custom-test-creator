@@ -43,10 +43,14 @@ interface TableData {
   columns: string[];
   rows: any[][];
 }
+interface ExpectedOutput {
+  columns: string[];
+  rows: any[][];
+}
 
 interface SqlQuestion {
   question_text: string;
-  expected_output: any[][];
+  expected_output: ExpectedOutput;
   difficulty?: string;
   subtopic?: string;
   video?: string;

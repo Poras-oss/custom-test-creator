@@ -4,8 +4,9 @@ import './index.css'
 import App from './App.tsx'
 import { ClerkProvider } from '@clerk/clerk-react'
 
+
 // Import your publishable key
-const PUBLISHABLE_KEY = 'pk_live_Y2xlcmsuZGF0YXNlbnNlYWkuY29tJA'
+const PUBLISHABLE_KEY = process.env.CLERK_KEY
 
 if (!PUBLISHABLE_KEY) {
   throw new Error("Missing Publishable Key")

@@ -9,10 +9,17 @@ import { Loader2, Video, X } from 'lucide-react';
 import ReactPlayer from 'react-player';
 import StatisticsPage from './StatisticsPage';
 
-interface TestCase {
-  input: string;
-  expected_output: string;
+
+interface ResultRow {
+  [key: string]: any; // Represents a row in the results with dynamic keys
 }
+
+interface UserResult extends ResultRow {
+  error?: boolean; // Optional property to indicate an error in user results
+}
+
+
+
 
 interface TableData {
   table_name: string;
@@ -20,12 +27,25 @@ interface TableData {
   rows: any[][];
 }
 
+interface ExpectedOutput {
+  columns: string[];
+  rows: any[][];
+  length: number;
+}
+
 interface Question {
   question_text: string;
-  expected_output: any[][];
+  expected_output: ExpectedOutput
   difficulty?: string;
   subtopic?: string;
   video?: string;
+  scenario: string;
+  'data-overview': string;
+  company: string[];
+  common_mistakes: string;
+  ideal_time: string;
+  interview_probability: string;
+  roles: string;
   table_data?: TableData[];
 }
 
@@ -259,16 +279,19 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
     }
   };
   
-  const compareResults = (userResults: any[], expectedOutput: any[][]): boolean => {
-    if (userResults.length !== expectedOutput.length) {
+  const compareResults = (userResults: UserResult, expectedOutput: ExpectedOutput): boolean => {
+    // Check if user results indicate an error
+    if (userResults.error) {
       return false;
     }
   
-    const expectedString = JSON.stringify(expectedOutput.map(row => Object.values(row)));
-    const userResultString = JSON.stringify(userResults.map(row => Object.values(row)));
-
+    // Convert rows to stringified arrays for comparison
+    const expectedString = JSON.stringify(expectedOutput.rows);
+    const userResultString = JSON.stringify(userResults.rows);
+  
     return userResultString === expectedString;
   };
+  
   
   const handleQuestionSelect = (index: number) => {
     if (!questionResults[currentQuestionIndex].isCorrect && 
@@ -393,6 +416,28 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
       />
     );
   }
+
+  function parseDataOverview(inputString: string) {
+    const resultMap = new Map();
+
+    // Split the input string by new lines
+    const lines = inputString.split("\n");
+
+    // Iterate over each line to extract key-value pairs
+    lines.forEach(line => {
+        const colonIndex = line.indexOf(":"); // Find the colon index
+        if (colonIndex !== -1) {
+            // Extract key (trim whitespace) and value (trim whitespace)
+            const key = line.slice(0, colonIndex).trim();
+            const value = line.slice(colonIndex + 1).trim();
+
+            // Add key-value pair to the map
+            resultMap.set(key, value);
+        }
+    });
+
+    return resultMap;
+}
 
   const currentQuestion = questions[currentQuestionIndex];
 
@@ -526,11 +571,110 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
           <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-100'} p-4 flex-grow overflow-y-auto`}>
             {activeTab === 'question' && (
               <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+              {/* Render scenario if it exists */}
+              {currentQuestion.scenario && (
                 <div 
-                  className="question-text"
-                  dangerouslySetInnerHTML={{ __html: currentQuestion.question_text }}
+                  className="scenario-text mb-4 text-md"
+                  dangerouslySetInnerHTML={{ __html: currentQuestion.scenario.replace(/\n/g, '<br>') }}
                 />
+              )}
+        
+                {/* Render question text with single teal vertical line */}
+                <div className="mb-6 mt-6">
+                <div className="flex">
+                  <div className={`w-1 mr-4 ${isDarkMode ? 'bg-teal-500' : 'bg-teal-600'}`}></div>
+                  <div 
+                    className="question-text flex-1 p-4"
+                    dangerouslySetInnerHTML={{ __html: currentQuestion.question_text.replace(/\n/g, '<br>') }}
+                  />
+                </div>
               </div>
+        
+        {currentQuestion['data-overview'] && (
+          <div className="mt-6">
+            {/* <h4 className="text-md font-semibold mb-2">Data Overview</h4> */}
+            <div className={`border rounded-lg overflow-hidden ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+              <table className="min-w-full divide-y divide-gray-200">
+                <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white'}>
+                  {(() => {
+                    const parsedData = parseDataOverview(currentQuestion['data-overview']);
+                    return Array.from(parsedData.entries()).map(([key, value], rowIndex) => (
+                      <tr key={rowIndex} className={rowIndex % 2 === 1 ? (isDarkMode ? 'bg-gray-900' : 'bg-gray-50') : ''}>
+                        <td 
+                          className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}
+                          dangerouslySetInnerHTML={{ __html: key }}
+                        ></td>
+                        <td 
+                          className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}
+                          dangerouslySetInnerHTML={{
+                            __html: typeof value === 'object' ? JSON.stringify(value) : value,
+                          }}
+                        ></td>
+                      </tr>
+                    ));
+                  })()}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+        
+            
+        
+              {/* New section: Additional Information with table-like layout */}
+              {(currentQuestion.common_mistakes || currentQuestion.interview_probability || currentQuestion.ideal_time ||  currentQuestion.roles) && (
+                <div className="mt-6">
+                  <h4 className="text-lg font-semibold mb-2">Additional Information</h4>
+                  <div className={`border rounded-lg overflow-hidden ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white'}>
+                        {currentQuestion.common_mistakes && (
+                          <tr>
+                            <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
+                              Common Mistakes
+                            </td>
+                            <td className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+                              {currentQuestion.common_mistakes}
+                            </td>
+                          </tr>
+                        )}
+                        {currentQuestion.interview_probability && (
+                          <tr className={isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}>
+                            <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
+                              Interview Probability
+                            </td>
+                            <td className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+                              {currentQuestion.interview_probability}
+                            </td>
+                          </tr>
+                        )}
+                        {currentQuestion.ideal_time && (
+                          <tr>
+                            <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
+                              Ideal Time
+                            </td>
+                            <td className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+                              {currentQuestion.ideal_time}
+                            </td>
+                          </tr>
+                        )}
+        
+        {currentQuestion.roles && (
+                          <tr className={isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}>
+                            <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-900'}`}>
+                              Job Roles
+                            </td>
+                            <td className={`px-6 py-4 whitespace-normal text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+                              {currentQuestion.roles}
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
             )}
 
             {activeTab === 'tables' && (
@@ -576,7 +720,7 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
     <table className="min-w-full divide-y divide-gray-200">
       <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
         <tr>
-        {currentQuestion.table_data?.[0]?.columns.slice(0,currentQuestion.expected_output[0].length).map((column, columnIndex) => (
+        {currentQuestion.expected_output.columns.map((column, columnIndex) => (
             <th
               key={columnIndex}
               className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
@@ -587,7 +731,7 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
         </tr>
       </thead>
       <tbody className={isDarkMode ? 'bg-gray-800' : 'bg-white divide-y divide-gray-200'}>
-        {currentQuestion.expected_output.slice(0, 10).map((row, rowIndex) => (
+        {currentQuestion.expected_output.rows.slice(0, 10).map((row, rowIndex) => (
           <tr key={rowIndex}>
             {row.map((value, cellIndex) => (
               <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm">
