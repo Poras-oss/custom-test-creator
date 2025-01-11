@@ -47,14 +47,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Desktop Sidebar */}
         <div className={`hidden lg:flex lg:w-64 lg:flex-col ${isDarkTheme ? 'bg-[#1a1a1a] text-white' : 'bg-white text-black'}`}>
           <div className="flex flex-col gap-2 border-r p-6">
-            <div className="flex h-16 items-center px-4">
+            {/* <div className="flex h-16 items-center px-4">
               {user && (
                 <div className="mt-3 text-lg font-medium">
                   Welcome, {user.firstName || user.username}!
                 </div>
               )}
              
-            </div>
+            </div> */}
             
             <ScrollArea className="flex-1">
               <nav className="flex flex-col h-screen gap-2 p-4">
@@ -87,7 +87,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-64">
-            <div className="flex h-16 items-center">
+            {/* <div className="flex h-16 items-center">
               {user && (
                 <div className="mt-3 text-lg font-medium">
                   Welcome, {user.firstName || user.username}!
@@ -105,7 +105,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                           )}
                         </div>
               
-            </div>
+            </div> */}
             <ScrollArea className="flex-1">
               <nav className="flex flex-col gap-2 p-4">
                 {navigation.map((item) => {

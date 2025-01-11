@@ -10,7 +10,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
-  const { isLoaded, isSignedIn } = useUser();
+  const { isLoaded, isSignedIn, user } = useUser();
 
   return (
     <header className={`${isDarkTheme ? 'bg-[#1d1d1d]' : 'bg-[#002147]'} relative`}>
@@ -42,6 +42,7 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
               >
                 {isDarkTheme ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5 text-white" />}
               </Button>
+              
             </div>
           </div>
  
@@ -66,6 +67,11 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
             >
               {isDarkTheme ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5 text-white" />}
             </Button>
+            {user && (
+                <div className={`mt-3 text-md font-medium mb-3 text-white`}>
+                  Welcome, {user.firstName || user.username}!
+                </div>
+              )}
             {isLoaded && isSignedIn ? (
               <UserButton afterSignOutUrl="/" />
             ) : (

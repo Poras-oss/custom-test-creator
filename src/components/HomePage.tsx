@@ -205,7 +205,7 @@ const HomePage: React.FC = () => {
                 />
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-2 ">
                 <Label>Number of Questions: {formData.numQuestions}</Label>
                 <Slider
                   value={[formData.numQuestions]}
@@ -279,7 +279,7 @@ const HomePage: React.FC = () => {
             </div>
 
             <div className="flex items-center justify-center">
-              <Button type="submit" className="w-1/3" disabled={loading}>
+              <Button type="submit" className="w-1/3 bg-cyan-700 hover:bg-cyan-600" disabled={loading}>
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 {loading ? 'Loading...' : 'Create Test'}
               </Button>
