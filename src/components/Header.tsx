@@ -65,7 +65,7 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
               onClick={toggleTheme}
               className={`${isDarkTheme ? 'text-white hover:bg-[#2f2f2f]' : 'text-gray-700 hover:bg-gray-300'}`}
             >
-              {isDarkTheme ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5 text-white" />}
+              {isDarkTheme ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6 text-white" />}
             </Button>
             {user && (
                 <div className={`mt-3 text-md font-medium mb-3 text-white`}>
@@ -76,7 +76,7 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
               <UserButton afterSignOutUrl="/" />
             ) : (
               <SignInButton mode="modal" fallbackRedirectUrl="/">
-                <Button size="sm" className={`${isDarkTheme ? 'bg-green-600 hover:bg-green-700' : 'bg-green-600 hover:bg-green-700'} text-white`}>
+                <Button size="default" className={`${isDarkTheme ? 'bg-blue-500 hover:bg-blue-600' : 'bg-blue-500 hover:bg-blue-600'} text-white`}>
                   Log In
                 </Button>
               </SignInButton>
