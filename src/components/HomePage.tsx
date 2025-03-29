@@ -118,15 +118,24 @@ const HomePage: React.FC = () => {
       
       
       // Option 1: Open in new tab
+      // if(formData.topic === 'sql' && formData.questionType === 'coding'){
+      //   const newWindow = window.open('/quiz', '_blank');
+      //   if (newWindow) newWindow.focus();
+      // }else if(formData.topic === 'python' && formData.questionType === 'coding'){
+      //   const newWindow = window.open('/python-coding-quiz', '_blank');
+      //   if (newWindow) newWindow.focus();
+      // }else{
+      //   const newWindow = window.open('/mcq-quiz', '_blank');
+      //   if (newWindow) newWindow.focus();
+      // }
+
+      //option 2: open in same tab
       if(formData.topic === 'sql' && formData.questionType === 'coding'){
-        const newWindow = window.open('/quiz', '_blank');
-        if (newWindow) newWindow.focus();
+        navigate('/quiz', { state: { questions: data } });
       }else if(formData.topic === 'python' && formData.questionType === 'coding'){
-        const newWindow = window.open('/python-coding-quiz', '_blank');
-        if (newWindow) newWindow.focus();
-      }else{
-        const newWindow = window.open('/mcq-quiz', '_blank');
-        if (newWindow) newWindow.focus();
+        navigate('/python-coding-quiz', { state: { questions: data } });
+      } else {
+        navigate('/mcq-quiz', { state: { questions: data } });
       }
 
     
@@ -147,7 +156,7 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="mx-auto  w-full">
-      <div className="mb-6 overflow-hidden rounded-lg shadow-lg bg-gradient-to-r from-blue-700 via-blue-500 to-blue-900">
+      <div className="mb-6 overflow-hidden rounded-lg shadow-lg bg-gradient-to-r from-[#096c6c] via-[#279999] to-[#50ebec]">
         <div className="relative p-6">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="flex-1 text-center md:text-left mb-4 md:mb-0">
@@ -159,7 +168,7 @@ const HomePage: React.FC = () => {
               </p>
             </div>
             <div className="flex-shrink-0">
-              <Star className="w-16 h-10 text-blue-300" />
+              <Star className="w-16 h-10 text-[#096c6c]" />
             </div>
           </div>
         </div>
@@ -279,7 +288,7 @@ const HomePage: React.FC = () => {
             </div>
 
             <div className="flex items-center justify-center">
-              <Button type="submit" className="w-1/3 bg-cyan-700 hover:bg-cyan-600" disabled={loading}>
+              <Button type="submit" className="w-1/3 bg-[#096c6c] hover:bg-[#50ebec] text-white" disabled={loading}>
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 {loading ? 'Loading...' : 'Create Test'}
               </Button>

@@ -163,7 +163,7 @@ export default function MCQQuiz({ questions, timePerQuestion, subject }: MCQQuiz
 
   if (questions.length === 0) {
     return (
-      <div className="w-full h-screen flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white">
+      <div className="w-full h-[calc(100vh-64px)] flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white">
         <Loader2 className="w-16 h-16 text-primary animate-spin" />
         <h5 className="mt-4 text-2xl font-thin text-muted-foreground">Loading...</h5>
       </div>
@@ -185,11 +185,11 @@ export default function MCQQuiz({ questions, timePerQuestion, subject }: MCQQuiz
   const totalTimeInSeconds = 0
 
   return (
-    <div className="bg-gradient-to-b from-blue-50 to-white">
-      <Card className="w-screen h-screen flex flex-col">
-        <CardHeader className="border-b">
+    <div className="bg-gradient-to-b from-blue-50 to-white h-[calc(100vh-64px)] overflow-hidden">
+      <Card className="w-full h-full flex flex-col rounded-none border-0">
+        <CardHeader className="border-b py-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-xl font-medium">{subject}</CardTitle>
+            <CardTitle className="text-xl font-medium uppercase">{subject}</CardTitle>
             <div className="flex gap-4 text-sm">
               <div>
                 This question: {timer >= 60 
@@ -204,12 +204,12 @@ export default function MCQQuiz({ questions, timePerQuestion, subject }: MCQQuiz
         <CardContent className="flex-grow overflow-auto p-4 md:p-6 lg:p-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
             <Card className="h-full">
-              <CardHeader>
+              <CardHeader className="py-2">
                 <CardTitle className="text-sm font-medium">
                   Question {currentQuestionIndex + 1}/{questions.length}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="h-[calc(100%-4rem)]">
+              <CardContent className="h-[calc(100%-3rem)]">
                 <ScrollArea className="h-full pr-4">
                   <div className="space-y-4">
                     <p className="text-base">{currentQuestion.question_text}</p>
@@ -228,12 +228,12 @@ export default function MCQQuiz({ questions, timePerQuestion, subject }: MCQQuiz
             </Card>
 
             <Card className="h-full">
-              <CardHeader>
+              <CardHeader className="py-2">
                 <CardTitle className="text-sm font-medium">
                   Options
                 </CardTitle>
               </CardHeader>
-              <CardContent className="h-[calc(100%-4rem)] flex flex-col">
+              <CardContent className="h-[calc(100%-3rem)] flex flex-col">
                 <ScrollArea className="flex-grow pr-4">
                   <RadioGroup value={selectedOption || ''} onValueChange={selectOption}>
                     {shuffledOptions.map(([key, value]) => (
@@ -247,17 +247,18 @@ export default function MCQQuiz({ questions, timePerQuestion, subject }: MCQQuiz
                   </RadioGroup>
                 </ScrollArea>
                 <Button 
-                  className="w-full mt-4"
+                  className="w-full mt-4 bg-[#096c6c] hover:bg-[#50ebec] text-white"
                   onClick={handleSubmitClick}
+                  disabled={selectedOption === null}
                 >
-                  {currentQuestionIndex === questions.length - 1 ? 'Submit' : 'Next'}
+                  {currentQuestionIndex === questions.length - 1 ? 'Submit Quiz' : 'Next Question'}
                 </Button>
               </CardContent>
             </Card>
           </div>
         </CardContent>
       </Card>
-      <ToastContainer />
+      <ToastContainer position="bottom-right" />
     </div>
   )
 }
