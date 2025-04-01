@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useUser, SignInButton, UserButton } from "@clerk/clerk-react";
 import { Moon, Sun } from "lucide-react";
 import { FaBars, FaTimes } from "react-icons/fa";
@@ -17,7 +17,21 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
   const { isLoaded, isSignedIn, user } = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCommunityOpen, setIsCommunityOpen] = useState(false);
+  const communityRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (communityRef.current && !communityRef.current.contains(event.target as Node)) {
+        setIsCommunityOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   
   // Check if we're on any quiz page
   const isQuizPage = 
@@ -62,6 +76,7 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
           <nav className="hidden md:flex items-center space-x-4">
             {/* Join Community Button for desktop */}
             <div
+              ref={communityRef}
               className="relative flex items-center cursor-pointer"
               onClick={() => setIsCommunityOpen(!isCommunityOpen)}
             >
