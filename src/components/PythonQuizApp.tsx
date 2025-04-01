@@ -346,19 +346,19 @@ export default function PythonQuizApp({ questions, timePerQuestion } : PythonQui
   const currentQuestion = questions[currentQuestionIndex];
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-black'}`}>
-      <nav className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-4 flex justify-between items-center`}>
-        <h1 className="mb-4 text-xl font-bold">Python Quiz</h1>
+    <div className={`h-[calc(100vh-64px)] overflow-hidden ${isDarkMode ? 'bg-[#262626] text-white' : 'bg-white text-black'}`}>
+      <nav className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} p-2 flex justify-between items-center border-b border-[#404040]`}>
+        <h1 className="text-xl font-bold">Python Quiz</h1>
         <div className="flex items-center space-x-4">
-        { currentQuestionIndex === questions.length - 1  &&  (<button
-        className={`flex-1 ${
-          isRunning ? 'bg-teal-500' : 'bg-teal-600'
-        } text-white px-4 py-2 rounded hover:bg-teal-700 focus:outline-none flex items-center justify-center`}
-        onClick={handleSubmitQuiz}
-        disabled={isRunning}
-      > 
-        {isQuizSubmitting ? 'Submitting...' : 'Submit Quiz'}
-      </button>)}
+          { currentQuestionIndex === questions.length - 1 && (
+            <button
+              className={`${isRunning ? 'bg-teal-500' : 'bg-teal-600'} text-white px-4 py-2 rounded hover:bg-teal-700 focus:outline-none flex items-center justify-center`}
+              onClick={handleSubmitQuiz}
+              disabled={isQuizSubmitting}
+            > 
+              {isQuizSubmitting ? 'Submitting...' : 'Submit Quiz'}
+            </button>
+          )}
           <div className="text-lg font-semibold">
             Time remaining: {formatTime(timeRemaining)}
           </div>
@@ -376,46 +376,35 @@ export default function PythonQuizApp({ questions, timePerQuestion } : PythonQui
           </button>
         </div>
       </nav>
-      <Split
-        className="flex h-[calc(100vh-4rem)]"
-        sizes={[50, 50]}
-        minSize={300}
-        expandToMin={false}
-        gutterSize={10}
-        gutterAlign="center"
-        snapOffset={30}
-        dragInterval={1}
-        direction="horizontal"
-        cursor="col-resize"
-      >
-        {/* Left side: Question List and Details */}
-        <div className="flex flex-col overflow-hidden">
-          {/* Question List */}
-          <div className={`flex gap-10 ${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4 h-1/8 relative`}>
-            <div className="overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 hover:scrollbar-thumb-gray-500">
-              <ul className="flex flex-nowrap gap-4 py-2">
-                {questions.map((_question, index) => (
-                  <li
-                    key={index}
-                    className={`cursor-pointer py-2 px-4 rounded border ${
-                      index === currentQuestionIndex
-                        ? 'bg-teal-500 text-white'
-                        : isDarkMode
-                        ? 'bg-[#262626] text-white hover:bg-gray-600'
-                        : 'bg-gray-300 text-gray-900 hover:bg-gray-400'
-                    }`}
-                    onClick={() => handleQuestionSelect(index)}
-                  >
-                    {index + 1}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-  
-          {/* Question Details */}
-          <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-100'} p-4 flex-grow overflow-y-auto`}>
-            <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-lg p-4 mb-4 shadow-md`}>
+
+      <div className={`flex gap-2 ${isDarkMode ? 'bg-[#1e1e1e]' : 'bg-gray-100'} px-4 py-2 overflow-x-auto whitespace-nowrap z-10`}>
+        {questions.map((_question, index) => (
+          <button
+            key={index}
+            className={`rounded-full min-w-[36px] h-9 flex items-center justify-center px-3 transition-colors ${
+              index === currentQuestionIndex
+                ? isDarkMode 
+                  ? 'bg-teal-500 text-white' 
+                  : 'bg-teal-600 text-white'
+                : isDarkMode
+                ? 'bg-[#2d2d2d] text-gray-300 hover:bg-[#3a3a3a]'
+                : 'bg-white text-gray-700 hover:bg-gray-200 border border-gray-300'
+            } ${questionResults[index].isCorrect === true ? 'ring-2 ring-green-500' : ''}`}
+            onClick={() => handleQuestionSelect(index)}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex h-[calc(100vh-64px-3rem-44px)]">
+        <div className={`w-2/5 flex flex-col overflow-hidden ${isDarkMode ? 'bg-[#1e1e1e]' : 'bg-white'} border-r ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+        <div className={`p-4 overflow-y-auto h-full ${
+          isDarkMode 
+            ? '[&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-[#2d2d2d] [&::-webkit-scrollbar-thumb]:bg-[#404040] [&::-webkit-scrollbar-thumb]:rounded-full'
+            : '[&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full'
+        }`}>
+            <div className={`rounded-lg mb-4`}>
               <h2 className="text-xl font-bold mb-4">Question {currentQuestionIndex + 1}</h2>
               <div 
                 className="question-text mb-6"
@@ -424,128 +413,165 @@ export default function PythonQuizApp({ questions, timePerQuestion } : PythonQui
               <h3 className="text-lg font-bold mb-2">Test Cases</h3>
               <ul className="space-y-2">
                 {currentQuestion.test_cases && currentQuestion.test_cases.map((testCase, index) => (
-                  <li key={index} className={`p-2 rounded ${isDarkMode ? 'bg-[#2f2c2c]' : 'bg-gray-200'}`}>
-                    <strong>Input:</strong> <code className="text-sm">{testCase.input}</code> <br />
-                    <strong>Expected Output:</strong> <code className="text-sm">{testCase.expected_output}</code>
+                  <li key={index} className={`p-3 rounded ${isDarkMode ? 'bg-[#2d2d2d]' : 'bg-gray-50 border border-gray-200'}`}>
+                    <div className="mb-1"><strong>Input:</strong></div>
+                    <pre className={`text-sm p-2 rounded ${isDarkMode ? 'bg-[#3a3a3a]' : 'bg-gray-100'} overflow-x-auto max-w-full break-words whitespace-pre-wrap`}>{testCase.input}</pre>
+                    <div className="mt-2 mb-1"><strong>Expected Output:</strong></div>
+                    <pre className={`text-sm p-2 rounded ${isDarkMode ? 'bg-[#3a3a3a]' : 'bg-gray-100'} overflow-x-auto max-w-full break-words whitespace-pre-wrap`}>{testCase.expected_output}</pre>
                   </li>
                 ))}
               </ul>
             </div>
           </div>
         </div>
-        {/* Right side: Code Editor and Results */}
-        <div className={`${isDarkMode ? 'bg-[#403f3f]' : 'bg-gray-200'} px-4 flex flex-col`}>
-          <div className={`${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded-t-lg p-2`}>
-            <span className="font-semibold">Python</span>
+
+        <div className={`w-3/5 flex flex-col ${isDarkMode ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
+          <div className={`flex-none`}>
+            <div className="px-4 py-2 font-medium">Code</div>
           </div>
+          
           <Split
-            className="flex-grow h-full"
+            className="flex flex-col h-[calc(100%-48px)]"
             direction="vertical"
-            sizes={[70, 30]}
+            sizes={[60, 40]}
             minSize={100}
-            gutterSize={10}
-            gutterAlign="center">
-  
-            <MonacoEditor
-              width="100%"
-              height="100%"
-              language="python"
-              theme={isDarkMode ? "vs-dark" : "light"}
-              value={userCodes[currentQuestionIndex]}
-              onChange={(newValue) => {
-                setUserCodes(prevCodes => {
-                  const newCodes = [...prevCodes];
-                  newCodes[currentQuestionIndex] = newValue || '';
-                  return newCodes;
-                } );
-              }}
-              options={{
-                minimap: { enabled: false },
-                scrollBeyondLastLine: false,
-                fontSize: 14,
-              }}
-            />
-            <div className="flex flex-col ">
-              <div className="flex mt-2 space-x-4 ">
+            gutterSize={8}
+            gutterStyle={() => ({
+              backgroundColor: isDarkMode ? '#989898' : '#e5e5e5',
+              height: '8px',
+              cursor: 'row-resize'
+            })}
+          >
+            <div className="overflow-hidden">
+              <MonacoEditor
+                width="100%"
+                height="100%"
+                language="python"
+                theme={isDarkMode ? "vs-dark" : "light"}
+                value={userCodes[currentQuestionIndex]}
+                onChange={(newValue) => {
+                  setUserCodes(prevCodes => {
+                    const newCodes = [...prevCodes];
+                    newCodes[currentQuestionIndex] = newValue || '';
+                    return newCodes;
+                  });
+                }}
+                options={{
+                  minimap: { enabled: false },
+                  fontSize: 14,
+                  lineNumbers: 'on',
+                  roundedSelection: false,
+                  scrollBeyondLastLine: false,
+                  automaticLayout: true,
+                }}
+              />
+            </div>
+
+            <div className="flex flex-col h-full overflow-hidden">
+              <div className={`flex-none p-3 gap-2 flex border-t border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-300'}`}>
                 <button
-                  className={`flex-1 ${isRunning ? 'bg-teal-500' : 'bg-teal-600'} text-white px-4 py-2 rounded hover:bg-teal-700 focus:outline-none flex items-center justify-center`}
+                  className={`flex-1 h-9 rounded ${isRunning 
+                    ? isDarkMode ? 'bg-teal-700' : 'bg-teal-500' 
+                    : isDarkMode ? 'bg-teal-600 hover:bg-teal-500' : 'bg-teal-600 hover:bg-teal-500'
+                  } text-white focus:outline-none flex items-center justify-center`}
                   onClick={handleRunCode}
                   disabled={isRunning}
                 >
                   {isRunning ? (
                     <>
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
                       Running...
                     </>
-                  ) : 'Run code'}
+                  ) : 'Run Code'}
                 </button>
-             <button
-             className={`flex-1 ${isRunning ? 'bg-teal-500' : 'bg-teal-600'} text-white px-4 py-2 rounded hover:bg-teal-700 focus:outline-none flex items-center justify-center`}
-             onClick={handleTestCode}
-             disabled={isSubmitting}
-             >
-               {isSubmitting ? (
+                <button
+                  className={`flex-1 h-9 rounded ${isSubmitting 
+                    ? isDarkMode ? 'bg-green-700' : 'bg-green-500' 
+                    : isDarkMode ? 'bg-green-600 hover:bg-green-500' : 'bg-green-600 hover:bg-green-500'
+                  } text-white focus:outline-none flex items-center justify-center`}
+                  onClick={handleTestCode}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
                     <>
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Submiting...
+                      Submitting...
                     </>
-                  ) : 'Submit code'}
-             </button>
+                  ) : 'Submit'}
+                </button>
               </div>
-              <div className={`mt-4 ${isDarkMode ? 'bg-[#262626]' : 'bg-white'} rounded p-4 flex-grow overflow-y-auto`}>
-                {feedback && (
-                  <div className={`mb-4 p-2 rounded ${feedback.isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    {feedback.text}
-                  </div>
-                )}
-                {output !== null &&  feedback?.testResults &&  (
-                  <div className="mt-4 flex flex-col space-y-4">
-                    <h3 className="text-lg font-semibold">Test Results</h3>
-                    {feedback.testResults.map((result, index) => (
-                      <div key={index} className={`p-4 rounded-lg ${
-                        result.passed 
-                          ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' 
-                          : 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100'
-                      }`}>
-                        <h4 className="font-medium mb-2">Test Case {index + 1}</h4>
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div>
-                            <span className="font-semibold">Input:</span>
-                            <pre className="mt-1 p-2 bg-gray-100 dark:bg-gray-700 rounded overflow-x-auto">{result.input}</pre>
-                          </div>
-                          <div>
-                            <span className="font-semibold">Expected Output:</span>
-                            <pre className="mt-1 p-2 bg-gray-100 dark:bg-gray-700 rounded overflow-x-auto">{result.expectedOutput}</pre>
-                          </div>
-                          <div className="col-span-2">
-                            <span className="font-semibold">Actual Output:</span>
-                            <pre className="mt-1 p-2 bg-gray-100 dark:bg-gray-700 rounded overflow-x-auto">{result.actualOutput}</pre>
-                          </div>
-                        </div>
-                        <div className={`mt-2 font-medium ${
+
+              <div className={`flex-none px-4 py-1 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-300'}`}>
+                <div className="font-medium">Output</div>
+              </div>
+              
+              <div className={`flex-grow overflow-y-auto overflow-x-hidden ${
+  isDarkMode 
+    ? '[&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-[#2d2d2d] [&::-webkit-scrollbar-thumb]:bg-[#404040] [&::-webkit-scrollbar-thumb]:rounded-full'
+    : '[&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full'
+}`}>
+                <div className={`p-4 ${isDarkMode ? 'bg-[#1e1e1e]' : 'bg-white'}`}>
+                  {feedback && feedback.text && (
+                    <div className={`mb-4 p-3 rounded-md ${feedback.isCorrect 
+                      ? isDarkMode ? 'bg-green-800 text-green-200' : 'bg-green-100 text-green-800' 
+                      : isDarkMode ? 'bg-red-800 text-red-200' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {feedback.text}
+                    </div>
+                  )}
+                  {feedback?.testResults && (
+                    <div className="space-y-4">
+                      {feedback.testResults.map((result, index) => (
+                        <div key={index} className={`p-3 rounded-md ${
                           result.passed 
-                            ? 'text-green-600 dark:text-green-400' 
-                            : 'text-red-600 dark:text-red-400'
+                            ? isDarkMode ? 'bg-green-900/30 border border-green-700' : 'bg-green-50 border border-green-200' 
+                            : isDarkMode ? 'bg-red-900/30 border border-red-700' : 'bg-red-50 border border-red-200'
                         }`}>
-                          {result.passed ? 'Passed' : 'Failed'}
+                          <div className="flex items-center mb-2">
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center mr-2 ${
+                              result.passed 
+                                ? isDarkMode ? 'bg-green-500' : 'bg-green-500' 
+                                : isDarkMode ? 'bg-red-500' : 'bg-red-500'
+                            }`}>
+                              {result.passed ? '✓' : '✗'}
+                            </div>
+                            <h4 className="font-medium">Test Case {index + 1} - {result.passed ? 'Passed' : 'Failed'}</h4>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 gap-2 text-sm mt-2">
+                            <div>
+                              <div className="font-medium mb-1">Input:</div>
+                              <pre className={`p-2 rounded ${isDarkMode ? 'bg-[#2d2d2d]' : 'bg-gray-100'} overflow-x-auto max-w-full break-words whitespace-pre-wrap`}>{result.input}</pre>
+                            </div>
+                            <div>
+                              <div className="font-medium mb-1">Expected Output:</div>
+                              <pre className={`p-2 rounded ${isDarkMode ? 'bg-[#2d2d2d]' : 'bg-gray-100'} overflow-x-auto max-w-full break-words whitespace-pre-wrap`}>{result.expectedOutput}</pre>
+                            </div>
+                            <div>
+                              <div className="font-medium mb-1">Your Output:</div>
+                              <pre className={`p-2 rounded ${isDarkMode ? 'bg-[#2d2d2d]' : 'bg-gray-100'} overflow-x-auto max-w-full break-words whitespace-pre-wrap`}>{result.actualOutput}</pre>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
+                  {!feedback?.testResults && output && (
+                    <pre className={`p-3 rounded ${isDarkMode ? 'bg-[#2d2d2d]' : 'bg-gray-100'} overflow-x-auto max-w-full break-words whitespace-pre-wrap`}>{output}</pre>
+                  )}
+                </div>
               </div>
             </div>
           </Split>
         </div>
-      </Split>
+      </div>
 
-      {/* Video Popup */}
       {isVideoPopupOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg relative w-11/12 max-w-4xl">
