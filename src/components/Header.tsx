@@ -142,22 +142,22 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
                     Join Community
                   </p>
                   <div className="flex space-x-4 p-2 rounded-xl bg-gradient-to-r from-teal-50 to-white">
-                    <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                    <a href="https://www.youtube.com/@Senseofdata" target="_blank" rel="noopener noreferrer" className="social-icon">
                       <FaYoutube className="text-teal-600 text-2xl" />
                     </a>
-                    <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                    <a href="https://www.linkedin.com/company/data-sense-lms/?viewAsMember=true" target="_blank" rel="noopener noreferrer" className="social-icon">
                       <FaLinkedin className="text-teal-600 text-2xl" />
                     </a>
-                    <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                    <a href="https://www.instagram.com/senseofdata/" target="_blank" rel="noopener noreferrer" className="social-icon">
                       <FaInstagram className="text-teal-600 text-2xl" />
                     </a>
-                    <a href="https://www.whatsapp.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                    <a href="https://chat.whatsapp.com/DYgDxOA8nBvJp4tPz5J6ox" target="_blank" rel="noopener noreferrer" className="social-icon">
                       <FaWhatsapp className="text-teal-600 text-2xl" />
                     </a>
-                    <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                    <a href="https://www.facebook.com/people/Data-Sense/61550202884240/?mibextid=LQQJ4d" target="_blank" rel="noopener noreferrer" className="social-icon">
                       <FaFacebook className="text-teal-600 text-2xl" />
                     </a>
-                    <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="social-icon">
+                    <a href="https://discord.gg/your-invite-link" target="_blank" rel="noopener noreferrer" className="social-icon">
                       <FaDiscord className="text-teal-600 text-2xl" />
                     </a>
                   </div>
