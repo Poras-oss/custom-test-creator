@@ -155,15 +155,15 @@ const HomePage: React.FC = () => {
   // }
 
   return (
-    <div className="mx-auto  w-full">
-      <div className="mb-6 overflow-hidden rounded-lg shadow-lg bg-gradient-to-r from-[#096c6c] via-[#279999] to-[#50ebec]">
-        <div className="relative p-6">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="flex-1 text-center md:text-left mb-4 md:mb-0">
-              <h2 className="text-xl md:text-3xl font-bold text-white mb-2 animate-bounce-short">
+    <div className="w-full px-0"> {/* Full width, no horizontal padding */}
+      <div className="mb-6 w-full rounded-none shadow-lg bg-gradient-to-r from-[#096c6c] via-[#279999] to-[#50ebec]">
+        <div className="p-6 w-full">
+          <div className="flex flex-col md:flex-row items-start w-full">
+            <div className="flex-1 text-left mb-4 md:mb-0 w-full">
+              <h2 className="text-xl md:text-3xl font-bold text-white mb-2 animate-bounce-short text-left">
                 You're a premium member!
               </h2>
-              <p className="text-white text-xs md:text-base leading-relaxed animate-fade-in-up">
+              <p className="text-white text-xs md:text-base leading-relaxed animate-fade-in-up text-left">
                 Enjoy unlimited access to all test series, Q&A sessions, and the exclusive coderpad. Keep pushing your limits and excelling!
               </p>
             </div>
@@ -174,21 +174,21 @@ const HomePage: React.FC = () => {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Create Custom Test</CardTitle>
-          <CardDescription>Configure your test settings below</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {error && (
-            <Alert variant="destructive" className="mb-6">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-4">
+      {/* Card removed, form is now direct child */}
+      <div className="w-full p-0">
+        <div className="w-full text-left mb-2">
+          <h3 className="text-2xl font-bold">Create Custom Test</h3>
+          <p className="text-muted-foreground">Configure your test settings below</p>
+        </div>
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-6 w-full">
+          <div className="space-y-4 w-full">
               <div className="flex items-center justify-between">
                 <Label htmlFor="questionPool">Question Pool</Label>
                 <Select
@@ -294,8 +294,7 @@ const HomePage: React.FC = () => {
               </Button>
             </div>
           </form>
-        </CardContent>
-      </Card>
+        </div>
     </div>
   );
 };

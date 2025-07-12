@@ -175,7 +175,7 @@ export default function CustomTestList() {
     const totalTime = selectedSubmission.questions.reduce((total, q) => total + (q.timeTaken || 0), 0);
 
     return (
-      <div className="container mx-auto w-full p-6">
+      <div className="w-full p-6"> {/* Full width */}
         <Button onClick={handleBackClick} className="mb-4">Back to List</Button>
         <StatisticsPage
           testId={selectedSubmission._id}
@@ -187,7 +187,7 @@ export default function CustomTestList() {
   }
 
   return (
-    <div className="container mx-auto w-full  ">
+    <div className="w-full p-6"> {/* Full width */}
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl font-bold">Your Custom Tests</CardTitle>

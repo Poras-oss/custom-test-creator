@@ -4,7 +4,6 @@ import Layout from './components/Layout';
 import HomePage from './components/HomePage';
 import StatisticsPage from './components/StatisticsPage';
 import PaymentPage from './components/PaymentPage';
-import LeaderboardPage from './components/LeaderboardPage';
 import  History  from './components/History';
 import QuizApp from './components/QuizApp';
 import PythonQuizApp from './components/PythonQuizApp'
@@ -228,7 +227,6 @@ const App: React.FC = () => {
                   <Route path="/" element={<HomePage />} />
                   <Route path="/statistics/:testId" element={<StatisticsPageWrapper/>} />
                   <Route path="/payment" element={<PaymentPage />} />
-                  <Route path="/leaderboard" element={<LeaderboardPage />} />
                   <Route path="/history" element={<History />} />
                 </Routes>
               </Layout>
