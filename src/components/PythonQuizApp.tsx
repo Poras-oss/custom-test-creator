@@ -66,7 +66,7 @@ export default function PythonQuizApp({ questions, timePerQuestion } : PythonQui
     questions.map(q => q.boilerplate_code || '')
   );
   const [feedback, setFeedback] = useState<Feedback | null>(null);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isQuizSubmitting, setIsQuizSubmitting] = useState(false);

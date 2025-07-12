@@ -114,7 +114,7 @@ export default function QuizApp({ questions, timePerQuestion }: QuizAppProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userQueries, setUserQueries] = useState<string[]>(questions.map(() => ''));
   const [feedback, setFeedback] = useState<Feedback | null>(null);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [output, setOutput] = useState<any | null>(null);
   const [isTesting, setIsTesting] = useState(false);
