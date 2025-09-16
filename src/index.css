@@ -111,3 +111,41 @@
 .animate-bounce-short {
   animation: bounce-short 1s ease-in 2.5;
 }
+
+.scrollbar-thin::-webkit-scrollbar {
+    height: 6px;  /* for horizontal scrollbar */
+    width: 6px;   /* for vertical scrollbar */
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #CBD5E0;
+    border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: #A0AEC0;
+}
+
+/* For dark mode */
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #4A5568;
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: #2D3748;
+}
+
+@keyframes flip {
+  0% { transform: rotateY(0deg); }
+  50% { transform: rotateY(180deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+.logo-flip {
+  animation: flip 5s linear infinite; /* adjust speed */
+  transform-style: preserve-3d;
+}
