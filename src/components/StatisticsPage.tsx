@@ -1,8 +1,12 @@
 import React from 'react'
+import { useContext } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Pie, PieChart, Cell } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from './ui/chart'
 import { Progress } from './ui/progress'
+import Header from './Header'
+import { DarkModeContext } from '../App';
+
 
 interface QuestionResult {
   subtopic: string
@@ -105,6 +109,8 @@ const StatisticsPage: React.FC<StatisticsProps> = ({ testId, results, totalTime 
   const totalQuestions = results.length
   const correctAnswers = results.filter(r => r.isCorrect).length
   const accuracy = (correctAnswers / totalQuestions) * 100
+  const { isDarkTheme, toggleTheme } = useContext(DarkModeContext);
+
 
   const subtopicData = results.reduce((acc, result) => {
     const existingSubtopic = acc.find(item => item.name === result.subtopic)
@@ -160,6 +166,10 @@ const StatisticsPage: React.FC<StatisticsProps> = ({ testId, results, totalTime 
   }
 
   return (
+    <>
+    {/* <Header /> */}
+    <Header isDarkTheme={isDarkTheme} toggleTheme={toggleTheme} />
+
     <div className="space-y-6 p-6 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold">Quiz Performance Statistics</h1>
       <p className="text-muted-foreground">Test ID: {testId}</p>
@@ -304,6 +314,7 @@ const StatisticsPage: React.FC<StatisticsProps> = ({ testId, results, totalTime 
         </Card>
       </div>
     </div>
+    </>
   )
 }
 
