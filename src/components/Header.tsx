@@ -41,6 +41,9 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
     location.pathname === '/python-coding-quiz' || 
     location.pathname === '/mcq-quiz';
 
+  const isCreateQuizPage = location.pathname === '/';
+  const isHistoryPage = location.pathname === '/history';
+
   const handleBackToHome = () => {
     window.location.href = "/";
   };
@@ -58,25 +61,25 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
               onClick={handleBackToHome}
             />
             <a
-              className="relative text-white text-lg font-medium transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
+              className="relative text-white text-lg font-base transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
               href="https://dashboard.datasenseai.com/practice-dashboard"
             >
               Dashboard
             </a>
             <a
-              className="relative text-white text-lg font-medium transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
+              className="relative text-white text-lg font-base transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
               href="https://practice.datasenseai.com/practice-area?subject=sql"
             >
               Practice
             </a>
             <a
-              className="relative text-white text-lg font-medium transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
+              className="relative text-white text-lg font-base transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
               href="https://practice.datasenseai.com/live-events"
             >
               Live Quiz
             </a>
             <a
-              className="relative text-white text-lg font-medium transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
+              className={`relative text-white text-lg ${isCreateQuizPage ? 'font-bold' : 'font-base'} transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full`}
               href="/"
             >
               Create Quiz
@@ -84,7 +87,7 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
             {isLoaded && isSignedIn && (
             <a
               href="/history"
-              className="relative text-white text-lg font-medium transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
+              className={`relative text-white text-lg ${isHistoryPage ? 'font-bold' : 'font-base'} transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full`}
               onClick={e => {
                 e.preventDefault();
                 navigate('/history');

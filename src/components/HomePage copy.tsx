@@ -55,8 +55,28 @@ const CircularProgress = ({ value, max, size = 100, isDarkTheme }: { value: numb
   );
 };
 
+// First, define a type for the difficulty levels
+type DifficultyLevel = 'easy' | 'medium' | 'advanced';
+
+// Update your formData interface
+interface FormData {
+  numQuestions: number;
+  topic: string;
+  questionType: string;
+  subtopics: string[];
+  difficulty: DifficultyLevel;  // Use the new type here
+  timePerQuestion: number;
+}
+
+// Update the difficultyDisplayMap with proper typing
+const difficultyDisplayMap: Record<DifficultyLevel, string> = {
+  'easy': 'Beginner',
+  'medium': 'Intermediate',
+  'advanced': 'Advanced'
+};
+
 const HomePage: React.FC = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     numQuestions: 10,
     topic: 'sql',
     questionType: 'coding',
@@ -129,10 +149,13 @@ const HomePage: React.FC = () => {
     setError(null);
 
     try {
-        // --- Logic for SQL Coding Quiz ---
         if (formData.topic === 'sql' && formData.questionType === 'coding') {
             const endpoint = 'https://server.datasenseai.com/test-series-coding/mysql';
-            const params = new URLSearchParams({ difficulties: formData.difficulty });
+            const params = new URLSearchParams({ 
+                difficulties: formData.difficulty,
+                limit: formData.numQuestions.toString() // Add this line to request specific number of questions
+            });
+            
             if (formData.subtopics.length > 0) {
                 params.append('subtopics', formData.subtopics.join(','));
             }
@@ -142,15 +165,19 @@ const HomePage: React.FC = () => {
 
             const responseData = await response.json();
             let filteredQuestions = responseData.results || [];
-            if (filteredQuestions.length === 0) throw new Error('No SQL questions found for the selected criteria.');
+            
+            // Ensure we get the exact number of questions requested
+            // if (filteredQuestions.length < formData.numQuestions) {
+            //     throw new Error(`Only ${filteredQuestions.length} questions available for the selected criteria.`);
+            // }
 
+            // Shuffle and slice to get exact number of questions
             const shuffledQuestions = shuffleArray(filteredQuestions);
             const quizQuestions = shuffledQuestions.slice(0, formData.numQuestions);
 
             sessionStorage.setItem('quizQuestions', JSON.stringify(quizQuestions));
             sessionStorage.setItem('timePerQuestion', formData.timePerQuestion.toString());
             navigate('/quiz');
-
         } else {
             // --- Logic for MCQ and other quiz types ---
             const endpoint = formData.questionType === 'coding' ? 'test-series-coding' : 'test-series-mcq';
@@ -216,13 +243,14 @@ const HomePage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 min-h-0">
         <div className="lg:col-span-3 flex flex-col gap-6">
           <div className={`${isDarkTheme ? 'bg-[#32363C]' : 'bg-white border border-gray-200'} p-5 rounded-xl`}>
-            <h3 className={`font-semibold mb-3 ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} text-base flex items-center`}><Sparkles className="text-[#ff6397] w-5 h-5 mr-2" />Difficulty</h3>
+            {/* <h3 className={`font-semibold mb-3 ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} text-base flex items-center`}><Sparkles className="text-[#ff6397] w-5 h-5 mr-2" />Difficulty</h3> */}
+            <h3 className={`font-semibold mb-3 ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} text-base flex items-center`}><Sparkles className={`w-5 h-5 mr-2 ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'}`} />Difficulty</h3>
             <div className="flex space-x-3 mb-5">
                 <ControlButton isDarkTheme={isDarkTheme} active={formData.difficulty === 'easy'} onClick={() => setFormData(f => ({ ...f, difficulty: 'easy' }))}>Beginner</ControlButton>
                 <ControlButton isDarkTheme={isDarkTheme} active={formData.difficulty === 'medium'} onClick={() => setFormData(f => ({ ...f, difficulty: 'medium' }))}>Intermediate</ControlButton>
                 <ControlButton isDarkTheme={isDarkTheme} active={formData.difficulty === 'advanced'} onClick={() => setFormData(f => ({ ...f, difficulty: 'advanced' }))}>Advanced</ControlButton>
             </div>
-            <h3 className={`font-semibold mb-3 ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} text-base flex items-center`}><Hash className="text-[#ffcc4a] w-5 h-5 mr-2" />Number of Questions</h3>
+            <h3 className={`font-semibold mb-3 ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} text-base flex items-center`}><Hash className={`w-5 h-5 mr-2 ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'}`} />Number of Questions</h3>
             <Slider
                 value={[formData.numQuestions]}
                 onValueChange={([v]) => setFormData(f => ({ ...f, numQuestions: v }))}
@@ -236,7 +264,8 @@ const HomePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 min-h-0">
               <div className={`${isDarkTheme ? 'bg-[#32363C]' : 'bg-white border border-gray-200'} p-5 rounded-xl flex flex-col gap-12`}>
                   <div className="flex items-center justify-between">
-                      <h3 className={`font-semibold ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} text-base flex items-center`}><Clock className="text-[#64ff86] w-5 h-5 mr-2" />Time Per Question</h3>
+                      {/* <h3 className={`font-semibold ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} text-base flex items-center`}><Clock className="text-[#64ff86] w-5 h-5 mr-2" />Time Per Question</h3> */}
+                      <h3 className={`font-semibold ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} text-base flex items-center`}><Clock className={`w-5 h-5 mr-2 ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'}`} />Time Per Question</h3>
                       <Select
                         value={String(formData.timePerQuestion)}
                         onValueChange={(value) => setFormData(f => ({...f, timePerQuestion: Number(value)}))}
@@ -254,17 +283,20 @@ const HomePage: React.FC = () => {
                       </Select>
                   </div>
                   <div className='space-y-2'>
-                      <h3 className={`font-semibold ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} text-base flex items-center`}><HelpCircle className="text-[#ffa768] w-5 h-5 mr-2" />Question type</h3>
+                      {/* <h3 className={`font-semibold ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} text-base flex items-center`}><HelpCircle className="text-[#ffa768] w-5 h-5 mr-2" />Question type</h3> */}
+                      <h3 className={`font-semibold ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} text-base flex items-center`}><HelpCircle className={`w-5 h-5 mr-2 ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'}`} />Question type</h3>
                       <div className='flex flex-col space-y-2'>
                         <div className='flex space-x-4'>
-                        <CustomSwitch isDarkTheme={isDarkTheme} active={formData.questionType === 'mcq'} onClick={() => setFormData(f => ({ ...f, questionType: 'mcq' }))}>MCQ</CustomSwitch>
+                        {/* <CustomSwitch isDarkTheme={isDarkTheme} active={formData.questionType === 'mcq'} onClick={() => setFormData(f => ({ ...f, questionType: 'mcq' }))}>MCQ</CustomSwitch> */}
+                        <CustomSwitch isDarkTheme={isDarkTheme} active={false} locked>MCQ</CustomSwitch>
                         <CustomSwitch isDarkTheme={isDarkTheme} active={formData.questionType === 'coding'} onClick={() => setFormData(f => ({ ...f, questionType: 'coding' }))}>Query Writing</CustomSwitch>
                         <CustomSwitch isDarkTheme={isDarkTheme} active={false} locked>Debugging</CustomSwitch>
                         </div>
                       </div>
                   </div>
                   <div>
-                      <h3 className={`font-semibold ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} text-base flex items-center mb-2`}><Gamepad2 className="text-[#00c8ff] w-5 h-5 mr-2" />Quiz Mode</h3>
+                      {/* <h3 className={`font-semibold ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} text-base flex items-center mb-2`}><Gamepad2 className="text-[#00c8ff] w-5 h-5 mr-2" />Quiz Mode</h3> */}
+                      <h3 className={`font-semibold ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} text-base flex items-center mb-2`}><Gamepad2 className={`w-5 h-5 mr-2 ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'}`} />Quiz Mode</h3>
                       <div className="flex space-x-2">
                         <ControlButton isDarkTheme={isDarkTheme} active={quizMode === 'exam'} onClick={() => setQuizMode('exam')}>Exam Mode</ControlButton>
                         <ControlButton isDarkTheme={isDarkTheme} active={quizMode === 'practice'} onClick={() => setQuizMode('practice')}>Practice Mode</ControlButton>
@@ -278,7 +310,8 @@ const HomePage: React.FC = () => {
                   </div>
               </div>
               <div className={`${isDarkTheme ? 'bg-[#32363C]' : 'bg-white border border-gray-200'} p-5 rounded-xl flex flex-col`}>
-                <h3 className={`font-semibold mb-3 ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} text-base flex items-center`}><Filter className="text-[#76ff73] w-5 h-5 mr-2" />Sub Topics</h3>
+                {/* <h3 className={`font-semibold mb-3 ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} text-base flex items-center`}><Filter className="text-[#76ff73] w-5 h-5 mr-2" />Sub Topics</h3> */}
+                <h3 className={`font-semibold mb-3 ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} text-base flex items-center`}><Filter className={`w-5 h-5 font-bold mr-2 ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'}`} />Sub Topics</h3>
                 <div className="flex flex-wrap gap-2 overflow-y-auto">
                     {currentSubtopics.map(sub => (
                         <button key={sub} onClick={() => handleSubtopicClick(sub)}
@@ -308,7 +341,7 @@ const HomePage: React.FC = () => {
           <div className="p-5 flex flex-col">
             <h3 className={`text-xl font-bold mb-5 flex items-center flex-shrink-0 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}><Target className="w-6 h-6 mr-2 text-cyan-400"/> Quiz Preview</h3>
             <div className="space-y-4 text-base">
-                <div className="flex justify-between"><span className={isDarkTheme ? 'text-slate-400' : 'text-gray-500'}>Difficulty:</span> <span className="font-medium capitalize">{formData.difficulty}</span></div>
+                <div className="flex justify-between"><span className={isDarkTheme ? 'text-slate-400' : 'text-gray-500'}>Difficulty:</span> <span className="font-medium">{difficultyDisplayMap[formData.difficulty]}</span></div>
                 <div className="flex justify-between"><span className={isDarkTheme ? 'text-slate-400' : 'text-gray-500'}>Questions:</span> <span className="font-medium">{formData.numQuestions}</span></div>
                 <div className="flex justify-between"><span className={isDarkTheme ? 'text-slate-400' : 'text-gray-500'}>Time per Q:</span> <span className="font-medium">{formData.timePerQuestion} Min</span></div>
                 <div className="flex justify-between"><span className={isDarkTheme ? 'text-slate-400' : 'text-gray-500'}>Type:</span> <span className="font-medium capitalize">{formData.questionType === 'coding' ? 'Query Writing' : 'MCQ'}</span></div>
