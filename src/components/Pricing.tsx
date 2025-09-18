@@ -279,7 +279,7 @@ export default function RazorpayPricingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-4xl md:text-5xl font-bold mb-6"
+            className="text-2xl md:text-3xl font-bold mb-6"
           >
             Choose the plan that's right for you
           </motion.h1>
@@ -287,7 +287,7 @@ export default function RazorpayPricingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-gray-400 text-lg max-w-2xl mx-auto"
+            className="text-gray-400 text-base max-w-2xl mx-auto"
           >
             Unlock the power of data with our flexible pricing options. Save up to 20% with our yearly plans!
           </motion.p>
