@@ -49,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
   };
 
   return (
-    <header className="sticky top-0 w-full bg-[#008B8B] shadow-lg z-50">
+    <header className="sticky top-0 w-full bg-[#008B8B]  z-50">
       <div className="container mx-auto px-0">
         <div className="flex justify-between items-center h-16">
           {/* Logo Section */}
@@ -62,7 +62,7 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
             />
             <a
               className="relative text-white text-lg font-base transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
-              href="https://dashboard.datasenseai.com/practice-dashboard"
+              href="https://dashboard.datasenseai.com/dashboard"
             >
               Dashboard
             </a>
