@@ -114,8 +114,8 @@ const HomePage: React.FC = () => {
     const fetchSolvedQuestions = async () => {
       if (!user || !user.id) return;
       try {
-        // const response = await fetch(`https://server.datasenseai.com/question-attempt/solved/${user.id}`);
-        const response = await fetch(`http://localhost:4000/question-attempt/solved/${user.id}`);
+        const response = await fetch(`https://server.datasenseai.com/question-attempt/solved/${user.id}`);
+        // const response = await fetch(`http://localhost:4000/question-attempt/solved/${user.id}`);
         if (response.ok) {
           const data = await response.json();
           const solvedSet = new Set<string>(data.solvedQuestions.filter((item: string | null) => item !== null));
@@ -158,8 +158,8 @@ const HomePage: React.FC = () => {
         // Determine mode based on quizMode state (defaults to 'practice' if not set)
         const mode = quizMode || 'practice';
 
-        await fetch('http://localhost:4000/custom-test-tracking/track', {
-          // await fetch('https://server.datasenseai.com/custom-test-tracking/track', {
+        // await fetch('http://localhost:4000/custom-test-tracking/track', {
+        await fetch('https://server.datasenseai.com/custom-test-tracking/track', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -183,8 +183,8 @@ const HomePage: React.FC = () => {
       }
 
       if (formData.topic === 'sql' && formData.questionType === 'coding') {
-        // const endpoint = 'https://server.datasenseai.com/test-series-coding/mysql';
-        const endpoint = 'http://localhost:4000/test-series-coding/mysql';
+        const endpoint = 'https://server.datasenseai.com/test-series-coding/mysql';
+        // const endpoint = 'http://localhost:4000/test-series-coding/mysql';
         const params = new URLSearchParams({
           difficulties: formData.difficulty,
           limit: formData.numQuestions.toString() // Add this line to request specific number of questions
@@ -210,8 +210,8 @@ const HomePage: React.FC = () => {
       } else {
         // --- Logic for MCQ and other quiz types ---
         const endpoint = formData.questionType === 'coding' ? 'test-series-coding' : 'test-series-mcq';
-        // let apiUrl = `https://server.datasenseai.com/${endpoint}/custom-questions?topic=${formData.topic}&type=${formData.questionType}&difficulty=${formData.difficulty}&numQuestions=${formData.numQuestions}`;
-        let apiUrl = `http://localhost:4000/${endpoint}/custom-questions?topic=${formData.topic}&type=${formData.questionType}&difficulty=${formData.difficulty}&numQuestions=${formData.numQuestions}`;
+        let apiUrl = `https://server.datasenseai.com/${endpoint}/custom-questions?topic=${formData.topic}&type=${formData.questionType}&difficulty=${formData.difficulty}&numQuestions=${formData.numQuestions}`;
+        // let apiUrl = `http://localhost:4000/${endpoint}/custom-questions?topic=${formData.topic}&type=${formData.questionType}&difficulty=${formData.difficulty}&numQuestions=${formData.numQuestions}`;
         if (formData.subtopics.length > 0) {
           apiUrl += `&subtopics=${encodeURIComponent(formData.subtopics.join(','))}`;
         }

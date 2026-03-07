@@ -130,12 +130,30 @@ const QuizWrapper: React.FC = () => {
   const [timer, setTimer] = useState<number>(0);
 
   useEffect(() => {
+    const fetchFullQuestions = async (summaries: any[]) => {
+      try {
+        const fullQuestions = await Promise.all(
+          summaries.map(async (q) => {
+            const res = await fetch(`https://server.datasenseai.com/test-series-coding/mysql/${q._id}`);
+            if (!res.ok) return q; // Fallback to summary if fetch fails
+            const data = await res.json();
+            return data.questions?.[0] || q;
+          })
+        );
+        setQuestions(fullQuestions);
+      } catch (err) {
+        console.error('Failed to fetch full questions', err);
+        setQuestions(summaries); // Fallback
+      }
+    };
+
     const storedQuestions = sessionStorage.getItem('quizQuestions');
     const timePerQuestion = sessionStorage.getItem('timePerQuestion');
     const time = parseInt(timePerQuestion || "0", 10);
 
     if (storedQuestions) {
-      setQuestions(JSON.parse(storedQuestions));
+      const parsedQuestions = JSON.parse(storedQuestions);
+      fetchFullQuestions(parsedQuestions);
       setTimer(time);
 
       // It's good practice to clear storage after use to prevent old data from reappearing

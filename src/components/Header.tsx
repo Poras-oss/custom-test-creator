@@ -34,68 +34,112 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-  
-  // Check if we're on any quiz page
-  const isQuizPage = 
-    location.pathname === '/quiz' || 
-    location.pathname === '/python-coding-quiz' || 
-    location.pathname === '/mcq-quiz';
 
-  const isCreateQuizPage = location.pathname === '/';
+  const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+  const isLearningActive = currentUrl.includes("view=courses");
+  const isGamingActive = currentUrl.includes("games-arena");
+  const isCareersActive = currentUrl.includes("view=career-builder");
+  const isDashboardPage = (currentUrl.endsWith("dashboard.datasenseai.com/") || currentUrl.includes("dashboard.datasenseai.com/dashboard")) && !isLearningActive && !isCareersActive;
+  const isPracticePage = currentUrl.includes("/practice-area");
+  const isLiveQuizPage = currentUrl.includes("/live-events");
+  const isCreateQuizPage = location.pathname === '/' || currentUrl.includes("assessment.datasenseai.com");
+  const isPracticeDropdownActive = isPracticePage || isLiveQuizPage || isCreateQuizPage;
   const isHistoryPage = location.pathname === '/history';
 
+  // Check if we're on any quiz page
+  const isQuizPage =
+    location.pathname === '/quiz' ||
+    location.pathname === '/python-coding-quiz' ||
+    location.pathname === '/mcq-quiz';
+
   const handleBackToHome = () => {
-    window.location.href = "/";
+    window.location.href = "https://datasenseai.com";
   };
 
   return (
-    <header className="sticky top-0 w-full bg-[#008B8B]  z-50">
-      <div className="container mx-auto px-0">
+    <header className="sticky top-0 w-full bg-[#00897B] dark:bg-teal-900 shadow-lg z-50 transition-colors duration-300">
+      <div className="pr-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo Section */}
-          <div className="flex items-center gap-5">
-            <img
-              className="h-10 w-auto cursor-pointer pr-4"
-              src={logo}
-              alt="Datasense"
-              onClick={handleBackToHome}
-            />
-            <a
-              className="relative text-white text-lg font-base transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
-              href="https://dashboard.datasenseai.com/dashboard"
-            >
-              Dashboard
-            </a>
-            <a
-              className="relative text-white text-lg font-base transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
-              href="https://practice.datasenseai.com/practice-area?subject=sql"
-            >
-              Practice
-            </a>
-            <a
-              className="relative text-white text-lg font-base transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full"
-              href="https://practice.datasenseai.com/live-events"
-            >
-              Live Quiz
-            </a>
-            <a
-              className={`relative text-white text-lg ${isCreateQuizPage ? 'font-bold' : 'font-base'} transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full`}
-              href="/"
-            >
-              Create Quiz
-            </a>
-            {isLoaded && isSignedIn && (
-            <a
-              href="/history"
-              className={`relative text-white text-lg ${isHistoryPage ? 'font-bold' : 'font-base'} transition duration-200 hover:text-[#03E9E9] after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 hover:after:w-full`}
-              onClick={e => {
-                e.preventDefault();
-                navigate('/history');
-              }}
-            >
-              History
-            </a>
-            )}
+          <div className="flex items-center gap-6 pl-6">
+            <div className="flex items-center gap-2">
+              <div
+                className="w-38 h-10 bg-white/1 rounded-lg flex items-center justify-center overflow-hidden p-1 cursor-pointer"
+                onClick={handleBackToHome}
+              >
+                <img
+                  className="w-full h-full object-contain pr-4"
+                  src={logo}
+                  alt="Datasense"
+                />
+              </div>
+            </div>
+
+            <div className="hidden md:flex items-baseline space-x-6 text-sm font-medium">
+              {/* Dashboard Link */}
+              <a
+                className={`relative transition-colors duration-200 hover:text-white after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 ${isDashboardPage ? 'text-white after:w-full' : 'text-white/90 hover:after:w-full'}`}
+                href="https://dashboard.datasenseai.com/"
+              >
+                Dashboard
+              </a>
+
+              {/* Practice Dropdown */}
+              <div className="relative group cursor-pointer h-16 flex items-center">
+                <div className={`flex items-center gap-1 relative transition-colors duration-200 hover:text-white after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 ${isPracticeDropdownActive ? 'text-white after:w-full' : 'text-white/90 hover:after:w-full'}`}>
+                  Practice
+                  <svg className="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+                <div className="absolute top-16 left-0 w-48 bg-[#00897B] dark:bg-teal-900 shadow-xl border border-teal-600 dark:border-teal-800 rounded-b-md overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                  <a href="https://practice.datasenseai.com/practice-area?subject=sql" className={`block px-4 py-3 text-sm transition-colors ${isPracticePage ? 'text-[#03E9E9] font-bold bg-teal-700/50 dark:bg-teal-800/50' : 'text-white hover:bg-teal-700/50 dark:hover:bg-teal-800/50'}`}>
+                    Practice Lab
+                  </a>
+                  <a href="https://practice.datasenseai.com/live-events" className={`block px-4 py-3 text-sm transition-colors border-t border-teal-600/50 ${isLiveQuizPage ? 'text-[#03E9E9] font-bold bg-teal-700/50 dark:bg-teal-800/50' : 'text-white hover:bg-teal-700/50 dark:hover:bg-teal-800/50'}`}>
+                    Live Quiz
+                  </a>
+                  <a href="/" className={`block px-4 py-3 text-sm transition-colors border-t border-teal-600/50 ${isCreateQuizPage ? 'text-[#03E9E9] font-bold bg-teal-700/50 dark:bg-teal-800/50' : 'text-white hover:bg-teal-700/50 dark:hover:bg-teal-800/50'}`}>
+                    Create Quiz
+                  </a>
+                </div>
+              </div>
+
+              {/* Learning Link */}
+              <a
+                className={`relative transition-colors duration-200 hover:text-white after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 cursor-pointer ${isLearningActive ? 'text-white after:w-full' : 'text-white/90 hover:after:w-full'}`}
+                href="https://dashboard.datasenseai.com/?view=courses"
+              >
+                Learning
+              </a>
+
+              {/* Gaming Link */}
+              <a
+                className={`relative transition-colors duration-200 hover:text-white after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 cursor-pointer ${isGamingActive ? 'text-white after:w-full' : 'text-white/90 hover:after:w-full'}`}
+                href="https://datasenseai.com/games-arena"
+              >
+                Gaming
+              </a>
+
+              {/* Careers Link */}
+              <a
+                className={`relative transition-colors duration-200 hover:text-white after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 cursor-pointer ${isCareersActive ? 'text-white after:w-full' : 'text-white/90 hover:after:w-full'}`}
+                href="https://dashboard.datasenseai.com/?view=career-builder"
+              >
+                Careers
+              </a>
+
+              {isLoaded && isSignedIn && (
+                <a
+                  href="/history"
+                  className={`relative transition-colors duration-200 hover:text-white after:content-[''] after:absolute after:w-0 after:h-[2px] after:left-0 after:-bottom-1 after:bg-[#03E9E9] after:transition-all after:duration-300 ${isHistoryPage ? 'text-white after:w-full' : 'text-white/90 hover:after:w-full'}`}
+                  onClick={e => {
+                    e.preventDefault();
+                    navigate('/history');
+                  }}
+                >
+                  History
+                </a>
+              )}
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
@@ -115,7 +159,7 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
 
           {/* Centered Navigation Links */}
           {/* <nav className="flex-1 flex justify-center items-center space-x-8"> */}
-            {/* <a
+          {/* <a
               href="https://practice.datasenseai.com/"
               rel="noopener noreferrer"
               className="bg-[#096c6c] hover:bg-[#279999] text-white px-4 py-2 rounded-md transition-colors duration-200"
@@ -129,7 +173,7 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
             >
               Dashboard
             </a> */}
-            {/* {isLoaded && isSignedIn && (
+          {/* {isLoaded && isSignedIn && (
               <a
                 href="/history"
                 className="bg-[#096c6c] hover:bg-[#279999] text-white px-4 py-2 rounded-md transition-colors duration-200"
@@ -140,7 +184,7 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
               >
                 History
               </a> */}
-            {/* )
+          {/* )
           </nav> */}
 
 
@@ -158,13 +202,12 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
                 <span className="absolute top-0 right-0 bg-red-500 h-3 w-3 rounded-full animate-pulse"></span>
               </div>
 
-            
+
               {isCommunityOpen && (
-                <div 
-                  className="absolute top-12 right-0 bg-[#008B8B] p-4 rounded-lg shadow-xl flex flex-col items-center z-50 origin-top-right"
+                <div
+                  className="absolute top-12 right-0 bg-[#00897B] dark:bg-teal-900 border border-teal-600 dark:border-teal-800 p-4 rounded-xl shadow-2xl flex flex-col items-center z-50 origin-top-right"
                   style={{
                     animation: "fadeInScale 0.3s ease-out forwards",
-                    boxShadow: "0 10px 25px -5px rgba(0, 139, 139, 0.3), 0 8px 10px -6px rgba(0, 139, 139, 0.2)"
                   }}
                 >
                   <style>{`
@@ -222,7 +265,7 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
                       animation: glowPulse 1.5s infinite;
                     }
                   `}</style>
-                  <p 
+                  <p
                     className="text-white font-semibold mb-3 relative pb-2"
                     style={{
                       borderBottom: "2px solid rgba(0, 139, 139, 0.3)",
@@ -278,11 +321,11 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
                 )}
               </Button>
             )}
-            <button 
-              className="hidden md:flex items-center gap-2 hover:bg-[#03E9E9] hover:text-gray-900 text-white font-medium py-2 px-4 rounded-lg transition-colors" 
-              onClick={() => (window.location.href = '/pricing')}
+            <button
+              className="bg-white text-teal-800 px-6 py-2 rounded-lg font-bold text-sm hover:bg-teal-50 transition-all shadow-sm hidden md:flex items-center gap-2"
+              onClick={() => (window.location.href = 'https://datasenseai.com/pricing')}
             >
-              <img className="h-6 w-6" src={logoNew} alt="Logo" />
+              <img className="h-5 w-5" src={logoNew} alt="Logo" />
               <span>Upgrade to Pro</span>
             </button>
             {isLoaded && isSignedIn ? (
@@ -307,15 +350,14 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
 
         {/* Mobile Navigation Menu */}
         <div
-          className={`${
-            isMenuOpen ? "block" : "hidden"
-          } md:hidden bg-[#008B8B] border-t border-teal-600`}
+          className={`${isMenuOpen ? "block" : "hidden"
+            } md:hidden bg-[#00897B] dark:bg-teal-900 border-t border-teal-600`}
         >
           <div className="px-4 py-3 space-y-3">
             <div className="flex flex-col items-center space-y-3">
               {/* Join Community Button in mobile menu */}
               <div className="relative w-full">
-                <button 
+                <button
                   onClick={() => setIsCommunityOpen(!isCommunityOpen)}
                   className="w-full flex items-center justify-center space-x-2 bg-white hover:bg-teal-600 text-[#008B8B] font-medium py-2 px-4 rounded-lg transition-colors"
                 >
@@ -325,9 +367,9 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
                     <span className="absolute top-0 right-0 bg-red-500 h-2 w-2 rounded-full animate-pulse"></span>
                   </div>
                 </button>
-                
+
                 {isCommunityOpen && (
-                  <div 
+                  <div
                     className="mt-2 p-3 bg-white rounded-lg shadow-md"
                     style={{
                       animation: "fadeInScale 0.3s ease-out forwards",
@@ -374,7 +416,7 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
                   </button>
                 </SignInButton>
               )}
-              
+
               {/* Only show theme toggle on non-quiz pages in mobile view */}
               {!isQuizPage && (
                 <Button
@@ -390,8 +432,11 @@ const Header: React.FC<HeaderProps> = ({ isDarkTheme, toggleTheme }) => {
                   )}
                 </Button>
               )}
-              <button className="hover:bg-[#03E9E9] hover:text-gray-900 text-white font-medium flex py-2 px-2 rounded-lg transition-colors gap-2" onClick={() => (window.location.href = '/pricing')}>
-                <img className="h-6 w-6" src={logoNew} alt="Logo" />
+              <button
+                className="bg-white w-full text-teal-800 px-6 py-2 rounded-lg font-bold text-sm hover:bg-teal-50 transition-all shadow-sm flex items-center justify-center gap-2"
+                onClick={() => (window.location.href = 'https://datasenseai.com/pricing')}
+              >
+                <img className="h-5 w-5" src={logoNew} alt="Logo" />
                 Upgrade to Pro
               </button>
             </div>
